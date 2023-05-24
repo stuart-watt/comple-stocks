@@ -1,0 +1,14 @@
+name: stocks
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - pandas
+  - click
+  - black
+  - gcsfs
+  - cloudpathlib
+  - google-cloud-pubsub
+  - jupyterlab
