@@ -4,9 +4,9 @@ resource "google_bigquery_dataset" "stocks" {
   location    = "US"
 }
 
-resource "google_bigquery_table" "prices_raw" {
+resource "google_bigquery_table" "prices" {
   dataset_id = google_bigquery_dataset.stocks.dataset_id
-  table_id   = "prices_raw"
+  table_id   = "prices"
 
   time_partitioning {
     type = "DAY"
@@ -28,39 +28,33 @@ resource "google_bigquery_table" "prices_raw" {
     },
     {
       "name": "open",
-      "type": "FLOAT",
+      "type": "NUMERIC",
       "mode": "NULLABLE",
       "description": "Open price"
     },
     {
       "name": "close",
-      "type": "FLOAT",
+      "type": "NUMERIC",
       "mode": "NULLABLE",
       "description": "Close price"
     },
     {
       "name": "low",
-      "type": "FLOAT",
+      "type": "NUMERIC",
       "mode": "NULLABLE",
       "description": "Low price"
     },
     {
       "name": "high",
-      "type": "FLOAT",
+      "type": "NUMERIC",
       "mode": "NULLABLE",
       "description": "High price"
     },
     {
       "name": "volume",
-      "type": "FLOAT",
+      "type": "NUMERIC",
       "mode": "NULLABLE",
       "description": "VOlume"
-    },
-    {
-      "name": "dividends",
-      "type": "FLOAT",
-      "mode": "NULLABLE",
-      "description": "Dividends"
     }
   ]
   EOF
@@ -79,6 +73,12 @@ resource "google_bigquery_table" "listed_companies" {
       "description": "ASX company ticker"
     },
     {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "ASX company name"
+    },
+    {
       "name": "GIC",
       "type": "STRING",
       "mode": "NULLABLE",
@@ -92,7 +92,7 @@ resource "google_bigquery_table" "listed_companies" {
     },
     {
       "name": "market_cap",
-      "type": "FLOAT",
+      "type": "NUMERIC",
       "mode": "NULLABLE",
       "description": "Market Cap"
     }

@@ -9,10 +9,13 @@ dependencies:
   - fire
   - black
   - gcsfs
+  - pandas-gbq
   - cloudpathlib
   - google-cloud-pubsub
   - jupyterlab
   - pylint
+  - google-auth
 
   - pip:
     - discord-webhook
+    - yahooquery
