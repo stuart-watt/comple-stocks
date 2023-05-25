@@ -6,9 +6,13 @@ dependencies:
   - python
   - numpy
   - pandas
-  - click
+  - fire
   - black
   - gcsfs
   - cloudpathlib
   - google-cloud-pubsub
   - jupyterlab
+  - pylint
+
+  - pip:
+    - discord-webhook

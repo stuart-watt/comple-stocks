@@ -15,9 +15,9 @@ export GOOGLE_APPLICATION_CREDENTIALS ?= $(HOME)/.gcp/gcp_credentials.json
 #############
 
 mamba:
-	mamba env update -n $(ALIAS) --file environment.yaml --prune \
+	mamba env update -n $(ALIAS) --file environment.yml --prune \
 		|| \
-	mamba env create --file environment.yaml
+	mamba env create --file environment.yml
 
 #############
 ## Testing ##
