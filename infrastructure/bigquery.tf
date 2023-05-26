@@ -54,7 +54,7 @@ resource "google_bigquery_table" "prices" {
       "name": "volume",
       "type": "NUMERIC",
       "mode": "NULLABLE",
-      "description": "VOlume"
+      "description": "Volume"
     }
   ]
   EOF

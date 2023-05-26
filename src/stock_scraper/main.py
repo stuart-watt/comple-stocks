@@ -8,14 +8,11 @@ import pandas_gbq
 
 from yahooquery import Ticker
 
-URL = os.environ.get(
-    "LISTED_COMPANIES_URL", 
-    "https://asx.api.markitdigital.com/asx-research/1.0/companies/directory/file"
-)
-COMPANIES_TABLE = os.environ.get("COMPANIES_TABLE", "stocks.listed_companies")
-PRICES_TABLE = os.environ.get("PRICES_TABLE", "stocks.prices")
-START_DATE = os.environ.get("START_DATE", "2023-01-01")
-INTERVAL = os.environ.get("INTERVAL", "1h")
+URL = os.environ.get("LISTED_COMPANIES_URL")
+COMPANIES_TABLE = os.environ.get("COMPANIES_TABLE")
+PRICES_TABLE = os.environ.get("PRICES_TABLE")
+START_DATE = os.environ.get("START_DATE")
+INTERVAL = os.environ.get("INTERVAL")
 
 #############
 ## Handler ##
@@ -24,7 +21,11 @@ INTERVAL = os.environ.get("INTERVAL", "1h")
 def main(event=None, context=None):
     """GCF handler function"""
 
+    print("Fetching register of listed ASX companies")
     listed_companies = get_listed_companies()
+    print(f"Fetching complete! Found {listed_companies.symbol.nunique()} companies.")
+
+    print(f"Loading to {COMPANIES_TABLE}")
     pandas_gbq.to_gbq(
         listed_companies,
         COMPANIES_TABLE,
@@ -32,11 +33,15 @@ def main(event=None, context=None):
         if_exists="replace",
         progress_bar=False
     )
+    print("Loaded listed companies successfully.")
 
     tickers = [f"{ii}.ax" for ii in listed_companies["symbol"]]
 
+    print(f"Fetching historical prices for all listed companies starting at {START_DATE} (interval {INTERVAL})")
     stock_data = get_stock_data(tickers)
+    print(f"Success! Returned {len(stock_data)} rows.")
 
+    print(f"Loading to {PRICES_TABLE}")
     pandas_gbq.to_gbq(
         stock_data,
         PRICES_TABLE,
@@ -45,6 +50,7 @@ def main(event=None, context=None):
         progress_bar=False,
         api_method="load_csv"
     )
+    print("Loaded prices successfully")
 
 
 ###############
@@ -78,7 +84,7 @@ def get_stock_data(tickers: list):
     df = df.rename(columns={"date": "timestamp"})
     df["symbol"] = df["symbol"].str.replace(".ax", "", regex=False)
 
-    return df[["symbol", "timestamp", "open", "high", "low", "close"]]
+    return df[["symbol", "timestamp", "open", "high", "low", "close", "volume"]]
 
 
 ##########
