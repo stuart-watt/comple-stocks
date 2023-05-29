@@ -29,13 +29,15 @@ resource "google_cloudfunctions_function" "discord_messenger" {
 
   event_trigger {
     event_type = "google.pubsub.topic.publish"
-    resource   = google_pubsub_topic.hourly.id
+    resource   = google_pubsub_topic.stock_report.id
     failure_policy {
       retry = false
     }
   }
 
   environment_variables = {
-    WEBHOOK = data.google_secret_manager_secret_version_access.webhook.secret_data
+    WEBHOOK    = data.google_secret_manager_secret_version_access.webhook.secret_data
+    PRICES     = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices.table_id}"
+    PROJECT_ID = var.project_id
   }
 }

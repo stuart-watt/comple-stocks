@@ -41,5 +41,6 @@ resource "google_cloudfunctions_function" "stock_scraper" {
     PRICES_TABLE         = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices.table_id}"
     START_DATE           = "2023-01-01"
     INTERVAL             = "1h"
+    PROJECT_ID           = var.project_id
   }
 }

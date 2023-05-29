@@ -1,1 +1,4 @@
 discord-webhook
+pandas
+pandas-gbq
+matplotlib
