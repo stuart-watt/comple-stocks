@@ -22,25 +22,25 @@ resource "google_cloudfunctions_function" "stock_scraper" {
   source_archive_object = google_storage_bucket_object.scraper_archive.name
 
   timeout               = 540
-  available_memory_mb   = 1024
+  available_memory_mb   = 4096
   max_instances         = 1
 
   entry_point           = "main"
 
   event_trigger {
     event_type = "google.pubsub.topic.publish"
-    resource   = google_pubsub_topic.hourly.id
+    resource   = google_pubsub_topic.ingestor.id
     failure_policy {
       retry = false
     }
   }
 
   environment_variables = {
-    LISTED_COMPANIES_URL = "https://asx.api.markitdigital.com/asx-research/1.0/companies/directory/file",
-    COMPANIES_TABLE      = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.listed_companies.table_id}"
-    PRICES_TABLE         = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices.table_id}"
-    START_DATE           = "2023-01-01"
-    INTERVAL             = "1h"
-    PROJECT_ID           = var.project_id
+    LISTED_COMPANIES_URL  = "https://asx.api.markitdigital.com/asx-research/1.0/companies/directory/file",
+    COMPANIES_TABLE       = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.listed_companies.table_id}"
+    HOURLY_PRICES_TABLE   = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices_hourly.table_id}"
+    MINUTELY_PRICES_TABLE = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices_minutely.table_id}"
+    PROJECT_ID            = var.project_id
+    BUCKET                = google_storage_bucket.datalake.name
   }
 }

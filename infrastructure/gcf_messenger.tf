@@ -37,7 +37,7 @@ resource "google_cloudfunctions_function" "discord_messenger" {
 
   environment_variables = {
     WEBHOOK    = data.google_secret_manager_secret_version_access.webhook.secret_data
-    PRICES     = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices.table_id}"
+    PRICES     = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices_minutely.table_id}"
     PROJECT_ID = var.project_id
   }
 }
