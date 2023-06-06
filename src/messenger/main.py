@@ -25,7 +25,7 @@ def main(event=None, context=None):
     """Handler function which sends the current date and time to discord"""
 
     print("Importing prices from BigQuery...")
-    prices = import_prices_from_bigquery(PROJECT_ID, PRICES, n_days=30)
+    prices = import_prices_from_bigquery(PROJECT_ID, PRICES, n_days=3)
     print("Data import success! Creating Discord report...")
     create_discord_report(prices)
     print("Discord report created and sent successfully!")
@@ -47,8 +47,8 @@ def create_discord_report(prices: pd.DataFrame) -> DiscordEmbed:
     )
     embed.set_timestamp()
 
-    # filter by shares with value above $1
-    prices = prices[prices["close"] > 1]
+    # filter by shares with value above $0.5
+    prices = prices[prices["close"] > 0.5]
 
     daily_price_changes = get_price_change(prices, *get_last_two_dates(prices))
     top_10_gainers = get_top_tickers(daily_price_changes)

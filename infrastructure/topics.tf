@@ -38,7 +38,7 @@ resource "google_pubsub_topic" "stock_report" {
 
 resource "google_cloud_scheduler_job" "stock_report" {
   name     = "stock_report"
-  schedule = "0 8 * * *" # 4 pm AWST
+  schedule = "0 8 * * 1-5" # 4 pm AWST
   region   = var.region
 
   pubsub_target {

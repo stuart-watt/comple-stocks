@@ -22,7 +22,7 @@ resource "google_cloudfunctions_function" "discord_messenger" {
   source_archive_object = google_storage_bucket_object.messenger_archive.name
 
   timeout               = 540
-  available_memory_mb   = 1024
+  available_memory_mb   = 2048
   max_instances         = 1
 
   entry_point           = "main"
