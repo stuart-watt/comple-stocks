@@ -8,7 +8,7 @@ resource "google_pubsub_topic" "ingestor" {
 
 resource "google_cloud_scheduler_job" "hourly" {
   name     = "stocks-hourly"
-  schedule = "0 0 * * *"
+  schedule = "0 0 * * 1-5"
   region   = var.region
 
   pubsub_target {
@@ -19,7 +19,7 @@ resource "google_cloud_scheduler_job" "hourly" {
 
 resource "google_cloud_scheduler_job" "minutely" {
   name     = "stocks-minutely"
-  schedule = "0,30 0-6,23 * * *" # every 30 mins between 10am-4:30pm AEST (accounting for daylight savings)
+  schedule = "0,30 0-6,23 * * 1-5" # every 30 mins between 10am-4:30pm AEST (accounting for daylight savings)
   region   = var.region
 
   pubsub_target {
