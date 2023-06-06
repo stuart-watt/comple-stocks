@@ -12,9 +12,9 @@ resource "google_storage_bucket_object" "messenger_archive" {
   name   = "messenger-${data.archive_file.messenger_source.output_md5}.zip"
 }
 
-resource "google_cloudfunctions_function" "discord_messenger" {
-  name        = "discord-messenger"
-  description = "Sends a message to Discord"
+resource "google_cloudfunctions_function" "stock-reporter" {
+  name        = "stock-reporter"
+  description = "Sends a stock report to Discord"
   runtime     = "python39"
 
   
