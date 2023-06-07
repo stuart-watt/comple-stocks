@@ -21,7 +21,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: stocks
-          environment-file: environment.yml
+          environment-file: environment_basic.yml
 
       - name: Run tests
         run: make tests

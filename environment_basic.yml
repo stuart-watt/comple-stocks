@@ -1,0 +1,13 @@
+name: stocks
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - python
+  - pandas
+  - black
+  - pytest
+  - pip
+  - pip:
+    - discord-webhook
+    - yahooquery
