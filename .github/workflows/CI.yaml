@@ -24,7 +24,7 @@ jobs:
           use-mamba: true
 
           activate-environment: stocks
-          environment-file: environment_basic.yml
+          environment-file: environment.yml
 
       - name: Run tests
         run: pytest src/messenger/ && pytest src/stock_scraper/
