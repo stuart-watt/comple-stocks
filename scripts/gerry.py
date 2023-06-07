@@ -3,6 +3,7 @@ import pandas as pd
 
 URL = "https://asx.api.markitdigital.com/asx-research/1.0/companies/directory/file"
 
+
 def get_listed_companies():
     """Get a list of all companies currently listed on the ASX."""
 

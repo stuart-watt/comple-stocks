@@ -2,6 +2,7 @@
 
 import pytest
 
+
 @pytest.fixture
 def asx_registry_url() -> str:
     """Fixture to return the ASX registry url"""
