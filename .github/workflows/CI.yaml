@@ -26,11 +26,6 @@ jobs:
       - name: Run tests
         run: make tests
 
-      - name: Commit actions changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Automated Change from ${{ github.event_name }} to ${{ github.ref }}
-
       - name: Format code
         run: make format
 
