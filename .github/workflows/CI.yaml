@@ -1,0 +1,41 @@
+name: CI
+run-name: CI triggered by ${{ github.event_name }} from ${{ github.actor }}
+
+on:
+  push:
+    branches: 
+      - "master"
+
+jobs:
+  Format:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup conda env
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: stocks
+          environment-file: environment.yml
+
+      - name: Run tests
+        run: make tests
+
+      - name: Commit actions changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Automated Change from ${{ github.event_name }} to ${{ github.ref }}
+
+      - name: Format code
+        run: make format
+
+      - name: Commit actions changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Automated Change from ${{ github.event_name }} to ${{ github.ref }}
+      
