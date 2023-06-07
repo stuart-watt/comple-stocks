@@ -1,6 +1,6 @@
 data "archive_file" "messenger_source" {
     type        = "zip"
-    source_dir  = "../src/messenger"
+    source_dir  = "../src/messenger/messenger"
     output_path = "/tmp/messenger.zip"
 }
 

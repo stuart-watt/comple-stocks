@@ -1,6 +1,6 @@
 data "archive_file" "scraper_source" {
     type        = "zip"
-    source_dir  = "../src/stock_scraper"
+    source_dir  = "../src/stock_scraper/stock_scraper"
     output_path = "/tmp/scraper.zip"
 }
 

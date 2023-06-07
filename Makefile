@@ -23,6 +23,10 @@ mamba:
 ## Testing ##
 #############
 
+tests:
+	pytest src/messenger/
+	pytest src/stock_scraper/
+
 
 ################
 ## Formatting ##

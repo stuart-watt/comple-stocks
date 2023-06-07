@@ -15,6 +15,7 @@ dependencies:
   - jupyterlab
   - pylint
   - google-auth
+  - pytest
 
   - pip:
     - discord-webhook

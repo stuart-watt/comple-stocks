@@ -27,7 +27,7 @@ def main(event=None, context=None):
     """GCF handler function to decoed the event data and route to different method"""
 
     print("Fetching register of listed ASX companies")
-    listed_companies = get_listed_companies()
+    listed_companies = get_listed_companies(URL)
     print(f"Fetching complete! Found {listed_companies.symbol.nunique()} companies.")
 
     tickers = [f"{ii}.ax" for ii in listed_companies["symbol"]]
@@ -106,10 +106,10 @@ def scrape_prices(
 ###############
 
 
-def get_listed_companies():
+def get_listed_companies(url: str) -> pd.DataFrame:
     """Get a list of all companies currently listed on the ASX."""
 
-    df = pd.read_csv(URL)
+    df = pd.read_csv(url)
     df["Listing date"] = pd.to_datetime(df["Listing date"], format="%d/%m/%Y")
     df["Market Cap"] = pd.to_numeric(df["Market Cap"], errors="coerce")
     columns_renamed = {
