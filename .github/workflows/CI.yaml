@@ -7,7 +7,7 @@ on:
       - "master"
 
 jobs:
-  Format:
+  CI:
     runs-on: ubuntu-latest
     defaults:
       run:

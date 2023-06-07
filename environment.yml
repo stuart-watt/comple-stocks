@@ -16,6 +16,7 @@ dependencies:
   - pylint
   - google-auth
   - pytest
+  - pip
 
   - pip:
     - discord-webhook
