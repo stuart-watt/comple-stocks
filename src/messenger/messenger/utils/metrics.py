@@ -19,4 +19,3 @@ def get_price_change(
     df["pct_change"] = df["abs_change"] / df["close_start"]
 
     return df
-
