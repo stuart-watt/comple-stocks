@@ -27,8 +27,7 @@ jobs:
           environment-file: environment_basic.yml
 
       - name: Run tests
-        run: pytest src/messenger/
-        run: pytest src/stock_scraper/
+        run: pytest src/messenger/ && pytest src/stock_scraper/
 
       - name: Format code
         run: black .
