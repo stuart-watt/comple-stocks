@@ -1,0 +1,12 @@
+stocks:
+  target: stocks
+  outputs:
+    stocks:
+      schema: stocks
+      type: bigquery
+      method: oauth
+      project: stuart-project-1
+      threads: 1
+      timeout_seconds: 300
+      location: US
+      priority: interactive

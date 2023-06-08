@@ -1,0 +1,6 @@
+name: stocks
+
+profile: stocks
+
+models:
+  +materialized: table
