@@ -1,4 +1,3 @@
-
 """Utilities to create a daily discord report"""
 import pytz
 
@@ -17,6 +16,7 @@ from .utils import (
     get_yesterday_close,
     get_price_timeseries,
 )
+
 
 def create_discord_report(webhook: str, prices: pd.DataFrame) -> DiscordEmbed:
     """Create a Discord report"""

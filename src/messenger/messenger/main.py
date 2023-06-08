@@ -38,6 +38,7 @@ def main(event=None, context=None):
         print("Sending price check...")
         create_price_alert(WEBHOOK)
 
+
 ##########
 ## Main ##
 ##########

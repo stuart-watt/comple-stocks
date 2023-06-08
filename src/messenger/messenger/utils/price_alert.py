@@ -1,7 +1,7 @@
-
 """Utilities to create a daily discord report"""
 
 from discord_webhook import DiscordWebhook, DiscordEmbed
+
 
 def create_price_alert(webhook: str) -> DiscordEmbed:
     """Create a Discord buy alert"""

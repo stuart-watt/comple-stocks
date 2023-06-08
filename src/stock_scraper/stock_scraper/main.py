@@ -69,8 +69,12 @@ def scrape_prices(
     """
     latest_prices = pd.read_gbq(query, project_id=PROJECT_ID, dialect="standard")
     if len(latest_prices) > 0:
-        latest_prices["latest_timestamp"] = latest_prices["latest_timestamp"].dt.tz_localize(None)
-        print(f"Last timestamp found in {table} is {latest_prices.latest_timestamp.iloc[0]}")
+        latest_prices["latest_timestamp"] = latest_prices[
+            "latest_timestamp"
+        ].dt.tz_localize(None)
+        print(
+            f"Last timestamp found in {table} is {latest_prices.latest_timestamp.iloc[0]}"
+        )
         period = "1d" if interval == "1m" else "1w"
 
     else:
@@ -84,8 +88,12 @@ def scrape_prices(
 
     if len(stock_data) > 0:
         stock_data = stock_data.merge(latest_prices, on="symbol", how="left")
-        stock_data["latest_timestamp"] = stock_data["latest_timestamp"].fillna(datetime(2020,1,1))
-        stock_data = stock_data[stock_data["timestamp"] > stock_data["latest_timestamp"]]
+        stock_data["latest_timestamp"] = stock_data["latest_timestamp"].fillna(
+            datetime(2020, 1, 1)
+        )
+        stock_data = stock_data[
+            stock_data["timestamp"] > stock_data["latest_timestamp"]
+        ]
 
         print(f"Success! Returned {len(stock_data)} rows.")
 
@@ -94,8 +102,7 @@ def scrape_prices(
         if gcs_save:
             now = int(datetime.now().timestamp())
             save_data_to_gcs(
-                stock_data,
-                f"gs://{BUCKET}/prices/ingest_timestamp={now}.jsonlines"
+                stock_data, f"gs://{BUCKET}/prices/ingest_timestamp={now}.jsonlines"
             )
 
     else:
