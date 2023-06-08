@@ -29,7 +29,7 @@ resource "google_cloudfunctions_function" "stock-reporter" {
 
   event_trigger {
     event_type = "google.pubsub.topic.publish"
-    resource   = google_pubsub_topic.stock_report.id
+    resource   = google_pubsub_topic.stock_notification.id
     failure_policy {
       retry = false
     }

@@ -5,7 +5,6 @@ from time import perf_counter
 from base64 import b64decode
 from datetime import datetime
 import json
-import pytz
 
 import pandas as pd
 import pandas_gbq
