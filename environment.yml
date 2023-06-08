@@ -12,9 +12,12 @@ dependencies:
   - pandas-gbq
   - cloudpathlib
   - google-cloud-pubsub
+  - google-cloud-bigquery
   - pylint
   - google-auth
   - pytest
+  - matplotlib
+  - jupyterlab
   - pip
 
   - pip:

@@ -19,12 +19,3 @@ def get_price_change(
     df["pct_change"] = df["abs_change"] / df["close_start"]
 
     return df
-
-
-def get_top_tickers(
-    prices: pd.DataFrame, winners: bool = True, n: int = 10
-) -> pd.DataFrame:
-    """Get the top-n (default=10) gainers (default) or losers for the day"""
-
-    df = prices.sort_values("pct_change", ascending=False)
-    return df.head(n) if winners else df.tail(n).iloc[::-1]
