@@ -1,9 +1,3 @@
-resource "google_bigquery_dataset" "stocks" {
-  dataset_id  = "stocks"
-  description = "Contains ASX data"
-  location    = "US"
-}
-
 resource "google_bigquery_table" "prices_hourly" {
   dataset_id = google_bigquery_dataset.stocks.dataset_id
   table_id   = "prices_hourly"

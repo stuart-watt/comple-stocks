@@ -64,14 +64,17 @@ def scrape_prices(
 
     print(f"Importing latest timestamp from {table} in BQ...")
     query = f"""
-        SELECT MAX(timestamp) as timestamp
-        FROM {table}
+        SELECT symbol, MAX(timestamp) as latest_timestamp
+        FROM {table} GROUP BY symbol ORDER BY latest_timestamp desc
     """
     latest_prices = pd.read_gbq(query, project_id=PROJECT_ID, dialect="standard")
-    latest_timestamp = latest_prices["timestamp"].iloc[0].tz_localize(None)
-
-    if latest_timestamp is not pd.NaT:
-        print(f"Last timestamp found in {table} is {latest_timestamp}")
+    if len(latest_prices) > 0:
+        latest_prices["latest_timestamp"] = latest_prices[
+            "latest_timestamp"
+        ].dt.tz_localize(None)
+        print(
+            f"Last timestamp found in {table} is {latest_prices.latest_timestamp.iloc[0]}"
+        )
         period = "1d" if interval == "1m" else "1w"
 
     else:
@@ -83,18 +86,23 @@ def scrape_prices(
     )
     stock_data = get_stock_data(tickers, period, interval)
 
-    if latest_timestamp is not pd.NaT:
-        stock_data = stock_data[stock_data["timestamp"] > latest_timestamp]
-
     if len(stock_data) > 0:
+        stock_data = stock_data.merge(latest_prices, on="symbol", how="left")
+        stock_data["latest_timestamp"] = stock_data["latest_timestamp"].fillna(
+            datetime(2020, 1, 1)
+        )
+        stock_data = stock_data[
+            stock_data["timestamp"] > stock_data["latest_timestamp"]
+        ]
+
         print(f"Success! Returned {len(stock_data)} rows.")
 
-        load_to_bg(stock_data, table, bq_mode)
+        load_to_bg(stock_data.drop(columns="latest_timestamp"), table, bq_mode)
 
         if gcs_save:
+            now = int(datetime.now().timestamp())
             save_data_to_gcs(
-                stock_data,
-                f"gs://{BUCKET}/prices/ingest_timestamp={int(datetime.now().timestamp())}.jsonlines",
+                stock_data, f"gs://{BUCKET}/prices/ingest_timestamp={now}.jsonlines"
             )
 
     else:
