@@ -5,7 +5,7 @@ stocks:
       schema: stocks
       type: bigquery
       method: oauth
-      project: '{{ env_var("TF_VAR_project_id", "none") }}'
+      project: '{{ env_var("PROJECT_ID", "none") }}'
       threads: 1
       timeout_seconds: 300
       location: US

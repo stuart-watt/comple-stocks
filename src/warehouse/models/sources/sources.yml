@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: stocks
-    database: '{{ env_var("TF_VAR_project_id", "none") }}'
+    database: '{{ env_var("PROJECT_ID", "none") }}'
     schema: stocks  
     tables:
       - name: listed_companies
