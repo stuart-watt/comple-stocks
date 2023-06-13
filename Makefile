@@ -44,3 +44,10 @@ export TF_VAR_secret_webhook = $(SECRET_WEBHOOK)
 
 terraform:
 	cd infrastructure && terraform init && terraform apply -auto-approve
+
+#########
+## DBT ##
+#########
+
+dbt:
+	cd src/warehouse && dbt run

@@ -12,7 +12,7 @@ env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
 jobs:
-  scheduled_run:
+  Run DBT:
     name: scheduled_run
     runs-on: ubuntu-latest
 
@@ -30,4 +30,4 @@ jobs:
           pip install dbt-bigquery
       
       - name: Run dbt
-        run: cd src/warehouse && dbt run
+        run: make dbt
