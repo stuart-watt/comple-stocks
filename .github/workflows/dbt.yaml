@@ -12,7 +12,7 @@ env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
 jobs:
-  Run DBT:
+  schedule:
     name: scheduled_run
     runs-on: ubuntu-latest
 
