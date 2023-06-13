@@ -28,6 +28,9 @@ jobs:
         run: |
           pip install dbt-core
           pip install dbt-bigquery
+
+      - name:
+        run: echo $PROJECT_ID
       
       - name: Run dbt
         run: make dbt
