@@ -25,7 +25,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install dbt
+          pip install dbt-core
+          pip install dbt-bigquery
       
       - name: Run dbt
         run: cd src/warehouse && dbt run
