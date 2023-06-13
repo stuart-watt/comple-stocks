@@ -8,7 +8,7 @@ on:
   # schedule:
   #     - cron:  '0 5,17 * * *'
 env:
-  GOOGLE_APPLICATION_CREDENTIALS: {{ secrets.CREDENTIALS }}
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.CREDENTIALS }}
 
 jobs:
   scheduled_run:
