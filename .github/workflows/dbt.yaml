@@ -8,7 +8,6 @@ on:
   # schedule:
   #     - cron:  '0 5,17 * * *'
 env:
-  GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.CREDENTIALS }}
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
 jobs:
@@ -20,6 +19,12 @@ jobs:
       - name: Check out
         uses: actions/checkout@master
 
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.CREDENTIALS }}'
+
       - uses: actions/setup-python@v1
         with:
           python-version: "3.7.x"
@@ -28,9 +33,6 @@ jobs:
         run: |
           pip install dbt-core
           pip install dbt-bigquery
-
-      - name:
-        run: echo $PROJECT_ID
       
       - name: Run dbt
-        run: make dbt
+        run: cd src/warehouse && dbt run
