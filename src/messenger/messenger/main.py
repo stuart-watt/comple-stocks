@@ -4,6 +4,7 @@ import os
 from base64 import b64decode
 from time import perf_counter
 import json
+from random import random
 
 # pylint: disable=import-error
 from utils.daily_report import create_discord_report
@@ -35,8 +36,9 @@ def main(event=None, context=None):
         print("Discord report created and sent successfully!")
 
     if event["method"] == "price-check":
-        print("Sending price check...")
-        create_price_alert(WEBHOOK)
+        if random() < 0.1:
+            print("Sending price check...")
+            create_price_alert(WEBHOOK)
 
 
 ##########
