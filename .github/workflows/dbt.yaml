@@ -1,0 +1,31 @@
+
+name: Run DBT
+
+on:
+  push:
+    branches: 
+      - "master"
+  # schedule:
+  #     - cron:  '0 5,17 * * *'
+env:
+  GOOGLE_APPLICATION_CREDENTIALS: {{ secrets.CREDENTIALS }}
+
+jobs:
+  scheduled_run:
+    name: scheduled_run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@master
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7.x"
+
+      - name: Install dependencies
+        run: |
+          pip install dbt
+      
+      - name: Run dbt
+        run: cd src/warehouse && dbt run

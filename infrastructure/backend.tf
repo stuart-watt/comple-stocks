@@ -1,6 +1,6 @@
 terraform {
  backend "gcs" {
-   bucket  = "my-terraform-stacks"
+   bucket  = "comple-terraform-stacks"
    prefix  = "stock_prompter"
  }
 }

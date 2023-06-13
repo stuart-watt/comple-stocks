@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: stocks
-    database: stuart-project-1
+    database: '{{ env_var("TF_VAR_project_id", "none") }}'
     schema: stocks  
     tables:
       - name: listed_companies

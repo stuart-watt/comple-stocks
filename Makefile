@@ -5,10 +5,11 @@ include .env
 
 export ALIAS = stocks 		# must match name field in environment.yaml
 
+export TF_VAR_project_name = $(PROJECT_NAME)
 export TF_VAR_project_id = $(PROJECT_ID)
 export TF_VAR_region = $(PROJECT_REGION)
-
-export GOOGLE_APPLICATION_CREDENTIALS ?= $(HOME)/.gcp/gcp_credentials.json
+export TF_VAR_secret_webhook = $(SECRET_WEBHOOK)
+export GOOGLE_APPLICATION_CREDENTIALS ?= $(HOME)/$(CREDENTIALS)
 
 #############
 ## Install ##
@@ -41,4 +42,3 @@ format:
 
 terraform:
 	cd infrastructure && terraform init && terraform apply -auto-approve
-

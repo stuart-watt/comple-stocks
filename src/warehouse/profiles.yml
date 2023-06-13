@@ -5,7 +5,7 @@ stocks:
       schema: stocks
       type: bigquery
       method: oauth
-      project: stuart-project-1
+      project: '{{ env_var("TF_VAR_project_id", "none") }}'
       threads: 1
       timeout_seconds: 300
       location: US

@@ -1,9 +1,9 @@
 resource "google_storage_bucket" "artifacts" {
-  name = "stock-prompter-artifacts"
+  name = "${var.project_name}-artifacts"
   location = "US"
 }
 
 resource "google_storage_bucket" "datalake" {
-  name = "stock-prompter-datalake"
+  name = "${var.project_name}-datalake"
   location = "US"
 }
