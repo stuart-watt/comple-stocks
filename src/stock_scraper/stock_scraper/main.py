@@ -57,13 +57,13 @@ def main(event=None, context=None):
             )
 
         if interval == "1h":
-            scrape_prices(
-                symbols, table=HOURLY_PRICES_TABLE, interval="1h"
-            )
+            scrape_prices(symbols, table=HOURLY_PRICES_TABLE, interval="1h")
+
 
 ##################
 ## Sub-Handlers ##
 ##################
+
 
 def fetch_symbols(method: str) -> list:
     """Fetches the symbols to ingest"""
@@ -91,6 +91,7 @@ def fetch_symbols(method: str) -> list:
 #############
 ## Scraper ##
 #############
+
 
 def scrape_prices(
     tickers: list, table: str, interval: str = "1h", bq_mode="append", gcs_save=False
@@ -137,7 +138,9 @@ def scrape_prices(
 
         print(f"Success! Returned {len(stock_data)} rows.")
 
-        load_to_bg(PROJECT_ID, stock_data.drop(columns="latest_timestamp"), table, bq_mode)
+        load_to_bg(
+            PROJECT_ID, stock_data.drop(columns="latest_timestamp"), table, bq_mode
+        )
 
         if gcs_save:
             now = int(datetime.now().timestamp())

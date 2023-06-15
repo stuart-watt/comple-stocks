@@ -3,6 +3,7 @@
 import pandas as pd
 from yahooquery import Ticker
 
+
 def get_stock_data(tickers: list, period: str, interval: str):
     """Get stock data for a list of tickers."""
 
