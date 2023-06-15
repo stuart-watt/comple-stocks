@@ -50,4 +50,4 @@ terraform:
 #########
 
 dbt:
-	cd src/warehouse && dbt run
+	cd src/warehouse && dbt seed && dbt run
