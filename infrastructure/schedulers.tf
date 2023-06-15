@@ -2,10 +2,23 @@
 ## Ingestion ##
 ###############
 
+resource "google_cloud_scheduler_job" "listed_companies" {
+  name        = "stocks-listed"
+  schedule    = "0 0 * * 1-5"
+  region      = var.region
+  description = "Starts a job to ingest the listed companies on the ASX."
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.ingestor.id
+    data = base64encode(jsonencode({"method": "listed_companies", "interval": "1h"}))
+  }
+}
+
 resource "google_cloud_scheduler_job" "hourly" {
-  name     = "stocks-hourly"
-  schedule = "0 0 * * 1-5"
-  region   = var.region
+  name        = "stocks-hourly"
+  schedule    = "0 0 * * 1-5"
+  region      = var.region
+  description = "Starts a job to ingest the stock prices with hourly granularity."
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
@@ -14,9 +27,10 @@ resource "google_cloud_scheduler_job" "hourly" {
 }
 
 resource "google_cloud_scheduler_job" "index-hourly" {
-  name     = "index-hourly"
-  schedule = "50 23 * * 1-5"
-  region   = var.region
+  name        = "index-hourly"
+  schedule    = "50 23 * * 1-5"
+  region      = var.region
+  description = "Starts a job to ingest the ASX indices with hourly granularity."
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
@@ -26,9 +40,10 @@ resource "google_cloud_scheduler_job" "index-hourly" {
 
 
 resource "google_cloud_scheduler_job" "minutely" {
-  name     = "stocks-minutely"
-  schedule = "0,30 0-6,23 * * 1-5" # every 30 mins between 10am-4:30pm AEST (accounting for daylight savings)
-  region   = var.region
+  name        = "stocks-minutely"
+  schedule    = "0,30 0-6,23 * * 1-5" # every 30 mins between 10am-4:30pm AEST (accounting for daylight savings)
+  region      = var.region
+  description = "Starts a job to ingest the stock prices with minutely granularity."
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
@@ -41,9 +56,10 @@ resource "google_cloud_scheduler_job" "minutely" {
 ###############
 
 resource "google_cloud_scheduler_job" "stock_report" {
-  name     = "stock_report"
-  schedule = "0 8 * * 1-5" # 4 pm AWST
-  region   = var.region
+  name        = "stock_report"
+  schedule    = "0 8 * * 1-5" # 4 pm AWST
+  region      = var.region
+  description = "Starts a job to send a stock report to Discord."
 
   pubsub_target {
     topic_name = google_pubsub_topic.stock_notification.id
@@ -55,6 +71,7 @@ resource "google_cloud_scheduler_job" "price_check" {
   name     = "price_check"
   schedule = "10,40 0-5 * * 1-5"
   region   = var.region
+  description = "Starts a job to send a stock alert to discord."
 
   pubsub_target {
     topic_name = google_pubsub_topic.stock_notification.id
