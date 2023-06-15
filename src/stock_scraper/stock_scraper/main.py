@@ -47,7 +47,7 @@ def main(event=None, context=None):
     if method == "index":
 
         scrape_prices(
-            symbols, table=HOURLY_INDEX_TABLE, interval="1m",
+            symbols, table=HOURLY_INDEX_TABLE, interval="1h",
         )
 
     if method == "stocks":
