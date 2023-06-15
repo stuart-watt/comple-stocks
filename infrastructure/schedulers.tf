@@ -9,7 +9,7 @@ resource "google_cloud_scheduler_job" "hourly" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
-    data = base64encode(jsonencode({"method": "stocks", "interval": "1h"}))
+    data = base64encode(jsonencode({"method": "stock", "interval": "1h"}))
   }
 }
 
@@ -32,7 +32,7 @@ resource "google_cloud_scheduler_job" "minutely" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
-    data = base64encode(jsonencode({"method": "stocks", "interval": "1m"}))
+    data = base64encode(jsonencode({"method": "stock", "interval": "1m"}))
   }
 }
 

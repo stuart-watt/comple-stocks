@@ -50,7 +50,7 @@ def main(event=None, context=None):
             symbols, table=HOURLY_INDEX_TABLE, interval="1h",
         )
 
-    if method == "stocks":
+    if method == "stock":
         if interval == "1m":
             scrape_prices(
                 symbols, table=MINUTELY_PRICES_TABLE, interval="1m", gcs_save=True
