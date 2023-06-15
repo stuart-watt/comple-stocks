@@ -16,7 +16,7 @@ resource "google_cloud_scheduler_job" "hourly" {
 
 resource "google_cloud_scheduler_job" "minutely" {
   name     = "stocks-minutely"
-  schedule = "0,30 0-6,23 * * 1-5" # every 30 mins between 10am-4:30pm AEST (accounting for daylight savings)
+  schedule = "30 3,6 23 * * 1-5" # runs at 11:30 and 2:30 AWST
   region   = var.region
 
   pubsub_target {
