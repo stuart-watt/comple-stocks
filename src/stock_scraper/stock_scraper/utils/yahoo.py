@@ -1,4 +1,4 @@
-"""Function"""
+"""Utility functions for interacting with Yahoo Finance"""
 
 import pandas as pd
 from yahooquery import Ticker
