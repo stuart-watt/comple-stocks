@@ -42,7 +42,7 @@ resource "google_cloud_scheduler_job" "stock_report" {
 
 resource "google_cloud_scheduler_job" "price_check" {
   name     = "price_check"
-  schedule = "10,40 0-5 * * 1-5"
+  schedule = "0,10,20,30,40,50 0-5 * * 1-5"
   region   = var.region
 
   pubsub_target {
