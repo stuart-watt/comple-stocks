@@ -9,7 +9,18 @@ resource "google_cloud_scheduler_job" "hourly" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
-    data = base64encode(jsonencode({"method": "ingest-hourly"}))
+    data = base64encode(jsonencode({"method": "stocks", "interval": "1h"}))
+  }
+}
+
+resource "google_cloud_scheduler_job" "index-hourly" {
+  name     = "index-hourly"
+  schedule = "50 23 * * 1-5"
+  region   = var.region
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.ingestor.id
+    data = base64encode(jsonencode({"method": "index", "interval": "1h"}))
   }
 }
 
@@ -21,7 +32,7 @@ resource "google_cloud_scheduler_job" "minutely" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.ingestor.id
-    data = base64encode(jsonencode({"method": "ingest-minutely"}))
+    data = base64encode(jsonencode({"method": "stocks", "interval": "1m"}))
   }
 }
 
