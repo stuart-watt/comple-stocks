@@ -41,7 +41,7 @@ resource "google_cloud_scheduler_job" "index-hourly" {
 
 resource "google_cloud_scheduler_job" "minutely" {
   name        = "stocks-minutely"
-  schedule    = "0,30 0-6,23 * * 1-5" # every 30 mins between 10am-4:30pm AEST (accounting for daylight savings)
+  schedule    = "30 3,6 23 * * 1-5" # runs at 11:30 and 2:30 AWST
   region      = var.region
   description = "Starts a job to ingest the stock prices with minutely granularity."
 
@@ -69,7 +69,7 @@ resource "google_cloud_scheduler_job" "stock_report" {
 
 resource "google_cloud_scheduler_job" "price_check" {
   name     = "price_check"
-  schedule = "10,40 0-5 * * 1-5"
+  schedule = "*/10,40 0-5 * * 1-5"
   region   = var.region
   description = "Starts a job to send a stock alert to discord."
 
