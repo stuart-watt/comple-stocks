@@ -19,6 +19,7 @@ dependencies:
   - matplotlib
   - jupyterlab
   - pip
+  - discord.py
 
   - pip:
     - discord-webhook
