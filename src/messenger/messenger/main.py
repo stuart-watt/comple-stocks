@@ -4,7 +4,6 @@ import os
 from base64 import b64decode
 from time import perf_counter
 import json
-from random import random
 
 # pylint: disable=import-error
 from utils.daily_report import create_discord_report
@@ -13,7 +12,7 @@ from utils.utils import import_prices_from_bigquery
 
 PROJECT_ID = os.environ.get("PROJECT_ID")
 WEBHOOK = os.environ["WEBHOOK"]
-PRICES = os.environ["PRICES"]
+PRICES_MINUTELY = os.environ["PRICES_MINUTELY"]
 
 #############
 ## Handler ##
@@ -28,17 +27,17 @@ def main(event=None, context=None):
     else:  # Invoked via pubsub.
         event = json.loads(b64decode(event["data"]).decode("utf-8"))
 
+    print("Importing prices from BigQuery...")
+    prices = import_prices_from_bigquery(PROJECT_ID, PRICES_MINUTELY)
+    print("Data import success! Creating Discord report...")
+
     if event["method"] == "daily-report":
-        print("Importing prices from BigQuery...")
-        prices = import_prices_from_bigquery(PROJECT_ID, PRICES, n_days=4)
-        print("Data import success! Creating Discord report...")
         create_discord_report(WEBHOOK, prices)
-        print("Discord report created and sent successfully!")
 
     if event["method"] == "price-check":
-        if random() < 0.1:
-            print("Sending price check...")
-            create_price_alert(WEBHOOK)
+        create_price_alert(WEBHOOK, prices)
+
+    return
 
 
 ##########

@@ -7,15 +7,19 @@ from datetime import datetime
 import json
 
 import pandas as pd
-import pandas_gbq
 
-from yahooquery import Ticker
+# pylint: disable=import-error
+from utils.utils import read_from_bg, load_to_bg, save_data_to_gcs
+from utils.asx import get_listed_companies
+from utils.yahoo import get_stock_data
 
 PROJECT_ID = os.environ.get("PROJECT_ID")
 URL = os.environ.get("LISTED_COMPANIES_URL")
 COMPANIES_TABLE = os.environ.get("COMPANIES_TABLE")
+INDICES_TABLE = os.environ.get("INDICES_TABLE")
 HOURLY_PRICES_TABLE = os.environ.get("HOURLY_PRICES_TABLE")
 MINUTELY_PRICES_TABLE = os.environ.get("MINUTELY_PRICES_TABLE")
+HOURLY_INDEX_TABLE = os.environ.get("HOURLY_INDEX_TABLE")
 BUCKET = os.environ.get("BUCKET")
 
 ##################
@@ -26,25 +30,62 @@ BUCKET = os.environ.get("BUCKET")
 def main(event=None, context=None):
     """GCF handler function to decoed the event data and route to different method"""
 
-    print("Fetching register of listed ASX companies")
-    listed_companies = get_listed_companies(URL)
-    print(f"Fetching complete! Found {listed_companies.symbol.nunique()} companies.")
-
-    tickers = [f"{ii}.ax" for ii in listed_companies["symbol"]]
-
-    if set(event.keys()) == {"method"}:  # Invoked manually.
+    if set(event.keys()) == {"method", "interval"}:  # Invoked manually.
         pass
     else:  # Invoked via pubsub.
         event = json.loads(b64decode(event["data"]).decode("utf-8"))
 
-    if event["method"] == "ingest-minutely":
+    method = event["method"]
+    interval = event["interval"]
+
+    print("Function started, method:", method, "interval:", interval)
+
+    # Fetch symbols
+    symbols = fetch_symbols(method)
+
+    # Ingest data
+    if method == "index":
+
         scrape_prices(
-            tickers, table=MINUTELY_PRICES_TABLE, interval="1m", gcs_save=True
+            symbols, table=HOURLY_INDEX_TABLE, interval="1h",
         )
 
-    if event["method"] == "ingest-hourly":
-        load_to_bg(listed_companies, COMPANIES_TABLE, "replace")
-        scrape_prices(tickers, table=HOURLY_PRICES_TABLE, interval="1h")
+    if method == "stock":
+        if interval == "1m":
+            scrape_prices(
+                symbols, table=MINUTELY_PRICES_TABLE, interval="1m", gcs_save=True
+            )
+
+        if interval == "1h":
+            scrape_prices(symbols, table=HOURLY_PRICES_TABLE, interval="1h")
+
+
+##################
+## Sub-Handlers ##
+##################
+
+
+def fetch_symbols(method: str) -> list:
+    """Fetches the symbols to ingest"""
+    if method == "listed_companies":
+        print("Fetching register of listed ASX companies from ASX")
+        listed_entities = get_listed_companies(URL)
+        load_to_bg(PROJECT_ID, listed_entities, COMPANIES_TABLE, "replace")
+        symbols = [f"{ii}.ax" for ii in listed_entities["symbol"]]
+
+    if method == "index":
+        print("Fetching list of ASX indices from BQ")
+        listed_entities = read_from_bg(PROJECT_ID, INDICES_TABLE)
+        symbols = [f"^A{ii}" for ii in listed_entities["symbol"]]
+
+    if method == "stock":
+        print("Fetching register of listed ASX companies from BQ")
+        listed_entities = read_from_bg(PROJECT_ID, COMPANIES_TABLE)
+        symbols = [f"{ii}.ax" for ii in listed_entities["symbol"]]
+
+    print(f"Fetching complete! Found {len(symbols)} symbols.")
+
+    return symbols
 
 
 #############
@@ -97,7 +138,9 @@ def scrape_prices(
 
         print(f"Success! Returned {len(stock_data)} rows.")
 
-        load_to_bg(stock_data.drop(columns="latest_timestamp"), table, bq_mode)
+        load_to_bg(
+            PROJECT_ID, stock_data.drop(columns="latest_timestamp"), table, bq_mode
+        )
 
         if gcs_save:
             now = int(datetime.now().timestamp())
@@ -107,68 +150,6 @@ def scrape_prices(
 
     else:
         print("No price data found!")
-
-
-###############
-## Utilities ##
-###############
-
-
-def get_listed_companies(url: str) -> pd.DataFrame:
-    """Get a list of all companies currently listed on the ASX."""
-
-    df = pd.read_csv(url)
-    df["Listing date"] = pd.to_datetime(df["Listing date"], format="%d/%m/%Y")
-    df["Market Cap"] = pd.to_numeric(df["Market Cap"], errors="coerce")
-    columns_renamed = {
-        "ASX code": "symbol",
-        "Company name": "name",
-        "GICs industry group": "GIC",
-        "Listing date": "listing_date",
-        "Market Cap": "market_cap",
-    }
-    return df.rename(columns=columns_renamed)
-
-
-def get_stock_data(tickers: list, period: str, interval: str):
-    """Get stock data for a list of tickers."""
-
-    client = Ticker(tickers, asynchronous=True)
-    df = client.history(period=period, interval=interval).reset_index()
-
-    numeric_cols = ["open", "close", "low", "high", "volume"]
-    df[numeric_cols] = df[numeric_cols].round(3).astype("string")
-
-    df = df.rename(columns={"date": "timestamp"})
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
-    df["timestamp"] = df["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
-
-    df["symbol"] = df["symbol"].str.replace(".ax", "", regex=False)
-
-    return df[["symbol", "timestamp", "open", "high", "low", "close", "volume"]]
-
-
-def load_to_bg(df: pd.DataFrame, table: str, mode: str, api_method="load_csv"):
-    """Load data to BQ."""
-
-    print(f"Loading to {table} with mode={mode}")
-    pandas_gbq.to_gbq(
-        df,
-        table,
-        project_id=PROJECT_ID,
-        if_exists=mode,
-        progress_bar=False,
-        api_method=api_method,
-    )
-    print("Loaded data to BQ successfully.")
-
-
-def save_data_to_gcs(df: pd.DataFrame, uri: str):
-    """Saves data to GCS."""
-
-    print(f"Loading to {uri}...")
-    df.to_json(uri, orient="records", lines=True)
-    print("Saved data to GCS successfully.")
 
 
 ##########

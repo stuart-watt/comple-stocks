@@ -2,7 +2,7 @@
 
 import pytest
 
-from stock_scraper.main import get_listed_companies
+from stock_scraper.utils.asx import get_listed_companies
 
 
 def test_get_listed_companies(asx_registry_url: str):
