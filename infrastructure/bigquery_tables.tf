@@ -152,3 +152,59 @@ resource "google_bigquery_table" "listed_companies" {
   EOF
 }
 
+resource "google_bigquery_table" "indices_hourly" {
+  dataset_id = google_bigquery_dataset.stocks.dataset_id
+  table_id   = "indices_hourly"
+
+  time_partitioning {
+    type  = "DAY"
+    field = "timestamp"
+  }
+
+  schema = <<EOF
+  [
+    {
+      "name": "symbol",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "ASX index symbol"
+    },
+    {
+      "name": "timestamp",
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE",
+      "description": "Timestamp"
+    },
+    {
+      "name": "open",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "Open price"
+    },
+    {
+      "name": "close",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "Close price"
+    },
+    {
+      "name": "low",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "Low price"
+    },
+    {
+      "name": "high",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "High price"
+    },
+    {
+      "name": "volume",
+      "type": "NUMERIC",
+      "mode": "NULLABLE",
+      "description": "Volume"
+    }
+  ]
+  EOF
+}

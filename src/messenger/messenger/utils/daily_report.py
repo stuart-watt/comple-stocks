@@ -18,7 +18,7 @@ from .utils import (
 )
 
 
-def create_discord_report(webhook: str, prices: pd.DataFrame) -> DiscordEmbed:
+def create_discord_report(webhook: str, prices: pd.DataFrame):
     """Create a Discord report"""
     webhook = DiscordWebhook(url=webhook)
 
@@ -63,6 +63,9 @@ def create_discord_report(webhook: str, prices: pd.DataFrame) -> DiscordEmbed:
     # Execute
     webhook.add_embed(embed)
     webhook.execute()
+    print("Discord report created and sent successfully!")
+
+    return
 
 
 def make_gainer_string(df: pd.DataFrame):
