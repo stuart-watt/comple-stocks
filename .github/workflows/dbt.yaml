@@ -2,11 +2,8 @@
 name: Run DBT
 
 on:
-  push:
-    branches: 
-      - "master"
-  # schedule:
-  #     - cron:  '0 5,17 * * *' 
+  schedule:
+    - cron:  "45 7 * * 1-5"
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
