@@ -36,8 +36,13 @@ resource "google_cloudfunctions_function" "stock-reporter" {
   }
 
   environment_variables = {
-    WEBHOOK         = data.google_secret_manager_secret_version_access.stock_webhook.secret_data
     PRICES_MINUTELY = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.prices_minutely.table_id}"
     PROJECT_ID      = var.project_id
+  }
+
+  secret_environment_variables {
+    key     = "WEBHOOK"
+    secret  = var.secret_stocks_webhook
+    version = "latest"
   }
 }
