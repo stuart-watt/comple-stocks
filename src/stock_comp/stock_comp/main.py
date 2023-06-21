@@ -6,7 +6,11 @@ from time import perf_counter
 # pylint: disable=import-error
 from utils.prices import import_prices_from_bigquery
 from utils.discord import scrape_messages_from_discord_channel, create_discord_report
-from utils.processing import process_discord_messages, compute_trade_value, compute_balances
+from utils.processing import (
+    process_discord_messages,
+    compute_trade_value,
+    compute_balances,
+)
 
 PROJECT_ID = os.environ["PROJECT_ID"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
@@ -17,6 +21,7 @@ WEBHOOK = os.environ["WEBHOOK"]
 #############
 ## Handler ##
 #############
+
 
 def main(event=None, context=None):
     """Handler function which sends reports/notifications to discord"""

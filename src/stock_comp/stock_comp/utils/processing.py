@@ -2,6 +2,7 @@
 
 import pandas as pd
 
+
 def process_discord_messages(messages: pd.DataFrame):
     """A utility to convert the Discrod messages into ASX trades"""
 
@@ -41,36 +42,42 @@ def process_discord_messages(messages: pd.DataFrame):
 
     return df
 
+
 def compute_trade_value(trades: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
     """Merge trade data with price data to compute trade value"""
 
     df = prices.merge(trades, how="left", on=["author_name", "symbol", "timestamp"])
 
-    df[["volume", "cash_volume", "stock_volume", "brokerage"]] = df[["volume", "cash_volume", "stock_volume", "brokerage"]].fillna(0)
+    df[["volume", "cash_volume", "stock_volume", "brokerage"]] = df[
+        ["volume", "cash_volume", "stock_volume", "brokerage"]
+    ].fillna(0)
     df["balance"] = df.groupby(["author_name", "symbol"])["balance"].ffill()
     df["balance"] = df["balance"].fillna(0)
 
-    df["stock_balance_value"] = df["balance"]*df["price"]
-    df["stock_volume_value"] = df["stock_volume"]*df["price"]
+    df["stock_balance_value"] = df["balance"] * df["price"]
+    df["stock_volume_value"] = df["stock_volume"] * df["price"]
 
     df["cash_flow"] = df["cash_volume"] - df["stock_volume_value"] - df["brokerage"]
 
-    df.loc[df["symbol"]=="$aud", "stock_balance_value"] = 0
-    df.loc[df["symbol"]=="$aud", "stock_volume_value"] = 0
+    df.loc[df["symbol"] == "$aud", "stock_balance_value"] = 0
+    df.loc[df["symbol"] == "$aud", "stock_volume_value"] = 0
 
     return df
+
 
 def compute_balances(trades: pd.DataFrame) -> pd.DataFrame:
     """Computes the cash and stock balances for each trader"""
 
-    df = trades[[
-        "timestamp",	
-        "author_name", 
-        "cash_volume",
-        "stock_balance_value",
-        "stock_volume_value",
-        "cash_flow"
-    ]].reset_index(drop=True)
+    df = trades[
+        [
+            "timestamp",
+            "author_name",
+            "cash_volume",
+            "stock_balance_value",
+            "stock_volume_value",
+            "cash_flow",
+        ]
+    ].reset_index(drop=True)
 
     df = df.groupby(["timestamp", "author_name"]).sum().reset_index()
     df["cash_balance"] = (
@@ -81,6 +88,8 @@ def compute_balances(trades: pd.DataFrame) -> pd.DataFrame:
     )
     df["total_balance"] = df["cash_balance"] + df["stock_balance_value"]
     df["total_change"] = df["total_balance"] - df["cash_changes"]
-    df["pct_change"] = (df["total_balance"] - df["cash_changes"]) / df["cash_changes"] * 100
+    df["pct_change"] = (
+        (df["total_balance"] - df["cash_changes"]) / df["cash_changes"] * 100
+    )
 
     return df

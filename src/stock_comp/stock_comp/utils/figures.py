@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
 
+
 def make_report_figure(df: pd.DataFrame) -> str:
     """Creates and saves a summary figure of the trading results"""
 
@@ -19,9 +20,7 @@ def make_report_figure(df: pd.DataFrame) -> str:
         data = df[df["author_name"] == author_name]
 
         ax1.plot(
-            data["timestamp"],
-            data["total_change"],
-            label=author_name,
+            data["timestamp"], data["total_change"], label=author_name,
         )
 
         ax1.fill_between(
@@ -40,7 +39,6 @@ def make_report_figure(df: pd.DataFrame) -> str:
             color="r",
             alpha=0.2,
         )
-
 
     ax1.axhline(0, color="gray", linestyle="--")
     ax1.set_xlim(data["timestamp"].min(), data["timestamp"].max())

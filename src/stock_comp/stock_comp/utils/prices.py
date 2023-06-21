@@ -7,16 +7,17 @@ import pandas as pd
 def create_timestamp_spine(start_date: str):
     """Creates a complete timestamp spine between trading hours"""
 
-    index = pd.date_range(start=start_date, end=str(datetime.today()), freq='T')
+    index = pd.date_range(start=start_date, end=str(datetime.today()), freq="T")
 
     filtered_index = index[
-        (index.strftime('%H:%M:%S') >= "00:00:00") & \
-        (index.strftime('%H:%M:%S') <= "06:00:00")
+        (index.strftime("%H:%M:%S") >= "00:00:00")
+        & (index.strftime("%H:%M:%S") <= "06:00:00")
     ]
 
     filtered_index = filtered_index[filtered_index.weekday < 5]
 
     return pd.DataFrame({"timestamp": filtered_index})
+
 
 def create_price_spine(messages: pd.DataFrame, prices: pd.DataFrame):
     """Craetes a spine for all symbols and timestamps"""
