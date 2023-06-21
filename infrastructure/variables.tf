@@ -14,7 +14,22 @@ variable "region" {
   default     = "us-central1"
 }
 
-variable "secret_webhook" {
+variable "secret_stocks_webhook" {
   type        = string
   description = "The webhook for the stock notifications."
+}
+
+variable "secret_trading_webhook" {
+  type        = string
+  description = "The webhook for the trading simulation notifications."
+}
+
+variable "trading_channel_id" {
+  type        = string
+  description = "The ID for the simualted trading Discord channel."
+}
+
+variable "bot_auth_token" {
+  type        = string
+  description = "The Authorisation token for the Discord bot."
 }

@@ -5,3 +5,7 @@ resource "google_pubsub_topic" "ingestor" {
 resource "google_pubsub_topic" "stock_notification" {
   name = "stock_notification"
 }
+
+resource "google_pubsub_topic" "simulation_report" {
+  name = "simulation_report"
+}

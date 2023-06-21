@@ -40,7 +40,10 @@ format:
 export TF_VAR_project_name = $(PROJECT_NAME)
 export TF_VAR_project_id = $(GCP_PROJECT_ID)
 export TF_VAR_region = $(PROJECT_REGION)
-export TF_VAR_secret_webhook = $(SECRET_WEBHOOK)
+export TF_VAR_secret_stocks_webhook = $(SECRET_STOCKS_WEBHOOK)
+export TF_VAR_secret_trading_webhook = $(SECRET_TRADING_WEBHOOK)
+export TF_VAR_trading_channel_id = $(TRADING_CHANNEL_ID)
+export TF_VAR_bot_auth_token = $(BOT_AUTH_TOKEN)
 
 terraform:
 	cd infrastructure && terraform init && terraform apply -auto-approve
