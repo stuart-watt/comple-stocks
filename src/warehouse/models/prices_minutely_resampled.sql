@@ -11,14 +11,14 @@
 
 WITH
 
-    prices AS (
+  prices AS (
     SELECT
       symbol,
       `timestamp` as exact_timestamp,
       DATETIME_TRUNC(`timestamp`, MINUTE) as `timestamp`,
       `close` as price
     FROM
-      {{ source("stocks", "prices_hourly")}}
+      {{ source("stocks", "prices_minutely")}}
     {% if is_incremental() %}
       WHERE `timestamp` > DATE_SUB((SELECT MAX(`timestamp`) as x FROM {{ this }}), INTERVAL 14 DAY)
     {% endif %}
@@ -39,9 +39,9 @@ WITH
       prices
   ),
  
-  -------------------------------------
-  -- Create a hourly timestamp spine --
-  -------------------------------------
+  ---------------------------------------
+  -- Create a minutely timestamp spine --
+  ---------------------------------------
 
   trading_dates AS (
     SELECT DISTINCT
@@ -59,7 +59,7 @@ WITH
         GENERATE_TIMESTAMP_ARRAY(
           (SELECT TIMESTAMP(MIN(`date`)) FROM trading_dates), 
           CURRENT_TIMESTAMP(),
-          INTERVAL 1 HOUR
+          INTERVAL 1 MINUTE
           )
       ) AS `timestamp`
     WHERE
@@ -105,7 +105,7 @@ WITH
     FROM
       stock_master
     LEFT JOIN
-      (SELECT * FROM prices_numbered WHERE rn = 1) 
+      (SELECT * FROM prices_numbered WHERE rn = 1)
     USING (symbol, `timestamp`)
   )
 
