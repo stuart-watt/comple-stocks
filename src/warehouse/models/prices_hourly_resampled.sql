@@ -15,7 +15,7 @@ WITH
     SELECT
       symbol,
       `timestamp` as exact_timestamp,
-      DATETIME_TRUNC(`timestamp`, MINUTE) as `timestamp`,
+      DATETIME_TRUNC(`timestamp`, HOUR) as `timestamp`,
       `close` as price
     FROM
       {{ source("stocks", "prices_hourly")}}
