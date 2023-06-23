@@ -1,20 +1,89 @@
+{{
+  config(
+    materialized="incremental",
+    partition_by = {
+      "field": "timestamp",
+      "data_type": "timestamp",
+      "granularity": "day"
+    },
+  )
+}}
+
 WITH
 
-  timestamp_master AS (
-    SELECT
-      `timestamp`
-    FROM
-      {{ ref("timestamp_master")}}
-  ),
-
-  prices AS (
+    prices AS (
     SELECT
       symbol,
-      `timestamp`,
+      `timestamp` as exact_timestamp,
+      DATETIME_TRUNC(`timestamp`, HOUR) as `timestamp`,
       `close` as price
     FROM
       {{ source("stocks", "prices_hourly")}}
+    {% if is_incremental() %}
+      WHERE `timestamp` > DATE_SUB((SELECT MAX(`timestamp`) as x FROM {{ this }}), INTERVAL 14 DAY)
+    {% endif %}
   ),
+
+  -- keep last value after rounding
+
+  prices_numbered AS (
+    SELECT
+      symbol,
+      `timestamp`,
+      price,
+      ROW_NUMBER() OVER (
+        PARTITION BY symbol, `timestamp` 
+        ORDER BY exact_timestamp DESC
+      ) as rn
+    FROM
+      prices
+  ),
+ 
+  -------------------------------------
+  -- Create a hourly timestamp spine --
+  -------------------------------------
+
+  trading_dates AS (
+    SELECT DISTINCT
+      DATE(`timestamp`) as `date`
+    FROM
+      prices
+  ),
+
+  timestamp_spine AS (
+    SELECT
+      `timestamp`,
+      DATE(`timestamp`) as `date`
+    FROM
+      UNNEST(
+        GENERATE_TIMESTAMP_ARRAY(
+          (SELECT TIMESTAMP(MIN(`date`)) FROM trading_dates), 
+          CURRENT_TIMESTAMP(),
+          INTERVAL 1 HOUR
+          )
+      ) AS `timestamp`
+    WHERE
+      EXTRACT(TIME FROM `timestamp`) >= "00:00:00" AND EXTRACT(TIME FROM `timestamp`) <= "06:00:00" -- Trading hours of ASX in UTC+0
+    {% if is_incremental() %}
+      -- Grab the last days' worth of prices in {{ this }} to forward fill
+      AND `timestamp` > DATE_SUB((SELECT MAX(`timestamp`) as x FROM {{ this }}), INTERVAL 1 DAY)
+    {% endif %}
+  ),
+
+  timestamp_master AS (
+    SELECT 
+      * 
+    FROM 
+      timestamp_spine 
+    JOIN 
+      trading_dates -- this join removes non-trading days
+    USING (`date`)
+    ORDER BY `timestamp`
+  ),
+
+  -------------------------
+  -- Create master spine --
+  -------------------------
 
   stock_master AS (
     SELECT

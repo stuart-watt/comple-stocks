@@ -4,6 +4,7 @@ name: Run DBT
 on:
   schedule:
     - cron:  "45 7 * * 1-5"
+  workflow_dispatch:
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
 
