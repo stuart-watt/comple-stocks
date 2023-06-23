@@ -126,9 +126,7 @@ def get_current_trader_status(
 
         string += f"\nTotal: ${total:.2f}"
 
-        standings.append(
-            {"author": author, "total": total, "string": string}
-        )
+        standings.append({"author": author, "total": total, "string": string})
 
     return (
         pd.DataFrame(standings)
