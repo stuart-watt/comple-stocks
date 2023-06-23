@@ -124,8 +124,10 @@ def get_current_trader_status(
 
         total = cash + author_balances.stock_balance_value.sum()
 
+        string += f"\nTotal: ${total:.2f}"
+
         standings.append(
-            {"author": author, "total": total, "string": f"\nTotal: ${total:.2f}"}
+            {"author": author, "total": total, "string": string}
         )
 
     return (
