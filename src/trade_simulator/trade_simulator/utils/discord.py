@@ -5,7 +5,8 @@ import pandas as pd
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 # pylint: disable=import-error
-from .figures import make_report_figure
+from .report import make_report_figure, get_current_trader_status
+from .processing import compute_balances
 
 
 def scrape_messages_from_discord_channel(channel_id: str, token: str) -> pd.DataFrame:
@@ -19,18 +20,22 @@ def scrape_messages_from_discord_channel(channel_id: str, token: str) -> pd.Data
     return pd.DataFrame(r.json())
 
 
-def create_discord_report(webhook: str, df: pd.DataFrame):
+def create_discord_report(webhook: str, trades: pd.DataFrame):
     """Create a Discord report as a Discrod embed"""
     webhook = DiscordWebhook(url=webhook)
 
-    embed = DiscordEmbed(title="Simulated Trading Results", color="03b2f8",)
+    embed = DiscordEmbed(title="Simulated Trading Results", color="03b2f8")
     embed.set_timestamp()
 
-    embed.add_embed_field(
-        name=":crown: Traders", value="\n".join(df.author_name.unique()), inline=False,
-    )
+    balances = compute_balances(trades)
 
-    figure = make_report_figure(df)
+    for key, value in get_current_trader_status(trades, balances).items():
+
+        embed.add_embed_field(
+            name=f":crown: {key}", value=value, inline=False,
+        )
+
+    figure = make_report_figure(balances)
 
     with open("/tmp/" + figure, "rb") as f:
         webhook.add_file(file=f.read(), filename=figure)

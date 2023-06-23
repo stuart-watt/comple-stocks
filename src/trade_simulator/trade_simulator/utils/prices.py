@@ -1,38 +1,6 @@
 """Utilities for importing price data into the service"""
 
-from datetime import datetime
 import pandas as pd
-
-
-def create_timestamp_spine(start_date: str):
-    """Creates a complete timestamp spine between trading hours"""
-
-    index = pd.date_range(start=start_date, end=str(datetime.today()), freq="T")
-
-    filtered_index = index[
-        (index.strftime("%H:%M:%S") >= "00:00:00")
-        & (index.strftime("%H:%M:%S") <= "06:00:00")
-    ]
-
-    filtered_index = filtered_index[filtered_index.weekday < 5]
-
-    return pd.DataFrame({"timestamp": filtered_index})
-
-
-def create_price_spine(messages: pd.DataFrame, prices: pd.DataFrame):
-    """Craetes a spine for all symbols and timestamps"""
-    times = create_timestamp_spine(str(messages["timestamp"].dt.date.min()))
-    symbols = messages[["author_name", "symbol"]].drop_duplicates()
-
-    spine = symbols.merge(times, how="cross")
-
-    spine = spine.merge(prices, how="left", on=["symbol", "timestamp"])
-    spine = spine.sort_values(by="timestamp")
-    spine["price"] = spine.groupby(["author_name", "symbol"])["price"].ffill()
-    spine["price"] = spine.groupby(["author_name", "symbol"])["price"].bfill()
-    spine["price"] = spine["price"].fillna(1)
-
-    return spine.sort_values(by=["timestamp", "symbol", "author_name"])
 
 
 def import_prices_from_bigquery(
@@ -47,7 +15,7 @@ def import_prices_from_bigquery(
         SELECT 
             LOWER(symbol) as symbol, 
             timestamp, 
-            close as price 
+            price 
         FROM `{table}` 
         WHERE LOWER(symbol) in ("{symbols}")
         AND timestamp >= "{timestamp}"
@@ -62,6 +30,8 @@ def import_prices_from_bigquery(
 
     df["price"] = df["price"].astype(float)
 
-    df = df.drop_duplicates()
+    symbols = trades[["author_name", "symbol"]].drop_duplicates()
 
-    return create_price_spine(trades, df)
+    return df.merge(symbols, how="left", on=["symbol"]).sort_values(
+        by=["timestamp", "author_name", "symbol"]
+    )

@@ -40,6 +40,11 @@ def process_discord_messages(messages: pd.DataFrame):
     df = df.sort_values(by="timestamp")
     df["balance"] = df.groupby(["author_name", "symbol"])["volume"].cumsum()
 
+    # Set any trades outside of market hours to the opening of the next day
+    mask = ~df["timestamp"].dt.strftime("%H:%M").between("00:00", "06:00")
+    df.loc[mask, "timestamp"] += pd.Timedelta(days=1)
+    df.loc[mask, "timestamp"] = df.loc[mask, "timestamp"].dt.floor("D")
+
     return df
 
 
