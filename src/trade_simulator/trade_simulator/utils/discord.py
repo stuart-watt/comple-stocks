@@ -29,10 +29,14 @@ def create_discord_report(webhook: str, trades: pd.DataFrame):
 
     balances = compute_balances(trades)
 
-    for key, value in get_current_trader_status(trades, balances).items():
+    standings = get_current_trader_status(trades, balances)
+
+    emojis = [":crown:", ":second_place:", ":poop:"]
+
+    for i, row in standings.iterrows():
 
         embed.add_embed_field(
-            name=f":crown: {key}", value=value, inline=False,
+            name=f"{emojis[i]} {row.author}", value=row.string, inline=False,
         )
 
     figure = make_report_figure(balances)

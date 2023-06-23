@@ -1,4 +1,4 @@
-"""Utilities for creating the trading report figure"""
+"""Utilities for creating the trading report in Discord"""
 
 import pytz
 
@@ -78,7 +78,9 @@ def make_report_figure(df: pd.DataFrame) -> str:
     return filename
 
 
-def get_current_trader_status(trades: pd.DataFrame, balances: pd.DataFrame) -> str:
+def get_current_trader_status(
+    trades: pd.DataFrame, balances: pd.DataFrame
+) -> pd.DataFrame:
     """Creates a string displaying each traders balances"""
 
     stock_balances = (
@@ -105,23 +107,29 @@ def get_current_trader_status(trades: pd.DataFrame, balances: pd.DataFrame) -> s
     )
     cash_balances = cash_balances[["author_name", "cash_balance"]]
 
-    standings = {}
+    standings = []
 
     for author in stock_balances["author_name"].unique():
         author_cash = cash_balances[cash_balances["author_name"] == author]
         cash = author_cash.cash_balance.iloc[0]
-        string = f"Cash: **${cash}**\n"
+        string = f"Cash: **${cash:.2f}**\n"
 
         author_balances = stock_balances[stock_balances["author_name"] == author]
         string += "\n".join(
             [
-                f"{row.symbol.upper()}: {int(row.balance)} (**${row.stock_balance_value}**)"
+                f"{row.symbol.upper()}: {int(row.balance)} (**${row.stock_balance_value:.2f}**)"
                 for _, row in author_balances.iterrows()
             ]
         )
 
-        string += f"\nTotal: ${cash+author_balances.stock_balance_value.sum()}"
+        total = cash + author_balances.stock_balance_value.sum()
 
-        standings[author] = string
+        standings.append(
+            {"author": author, "total": total, "string": f"\nTotal: ${total:.2f}"}
+        )
 
-    return standings
+    return (
+        pd.DataFrame(standings)
+        .sort_values(by="total", ascending=False)
+        .reset_index(drop=True)
+    )
