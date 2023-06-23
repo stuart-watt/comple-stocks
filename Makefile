@@ -24,6 +24,7 @@ mamba:
 tests:
 	pytest src/messenger/
 	pytest src/stock_scraper/
+	pytest src/trade_simulator/
 
 
 ################

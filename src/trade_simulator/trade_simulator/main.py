@@ -9,7 +9,6 @@ from utils.discord import scrape_messages_from_discord_channel, create_discord_r
 from utils.processing import (
     process_discord_messages,
     compute_trade_value,
-    compute_balances,
 )
 
 PROJECT_ID = os.environ["PROJECT_ID"]
@@ -37,12 +36,9 @@ def main(event=None, context=None):
     print("Price data imported successfully! Computing trade value...")
 
     trade_value = compute_trade_value(trades, prices)
-    print("Trade value computed successfully! Computing balances...")
+    print("Trade value computed successfully! Creating Discord report...")
 
-    balances = compute_balances(trade_value)
-    print("Balances computed successfully! Creating Discord report...")
-
-    create_discord_report(WEBHOOK, balances)
+    create_discord_report(WEBHOOK, trade_value)
 
 
 ##########

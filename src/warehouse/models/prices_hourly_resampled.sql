@@ -91,7 +91,7 @@ WITH
       symbol
     FROM
       timestamp_master,
-      (SELECT DISTINCT symbol FROM prices)
+      (SELECT DISTINCT symbol FROM prices UNION ALL SELECT "$AUD" as symbol) -- adds symbol for AUD
   ),
 
   new_prices AS (
@@ -105,12 +105,14 @@ WITH
     FROM
       stock_master
     LEFT JOIN
-      (SELECT * FROM prices_numbered WHERE rn = 1) 
+      (SELECT * FROM prices_numbered WHERE rn = 1)
     USING (symbol, `timestamp`)
   )
 
 SELECT 
-  * 
+  symbol,
+  `timestamp`,
+  COALESCE(price, 1) as price
 FROM 
   new_prices 
 {% if is_incremental() %}
