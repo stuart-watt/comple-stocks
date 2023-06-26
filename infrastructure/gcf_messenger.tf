@@ -36,8 +36,8 @@ resource "google_cloudfunctions_function" "stock-reporter" {
   }
 
   environment_variables = {
-    PRICES_MINUTELY = "${google_bigquery_dataset.stocks.dataset_id}.prices_minutely_resampled"
-    PROJECT_ID      = var.project_id
+    PRICES     = "${google_bigquery_dataset.stocks.dataset_id}.prices_hourly_resampled"
+    PROJECT_ID = var.project_id
   }
 
   secret_environment_variables {

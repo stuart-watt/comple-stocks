@@ -12,7 +12,7 @@ from utils.utils import import_prices_from_bigquery
 
 PROJECT_ID = os.environ.get("PROJECT_ID")
 WEBHOOK = os.environ["WEBHOOK"]
-PRICES_MINUTELY = os.environ["PRICES_MINUTELY"]
+PRICES= os.environ["PRICES"]
 
 #############
 ## Handler ##
@@ -28,7 +28,7 @@ def main(event=None, context=None):
         event = json.loads(b64decode(event["data"]).decode("utf-8"))
 
     print("Importing prices from BigQuery...")
-    prices = import_prices_from_bigquery(PROJECT_ID, PRICES_MINUTELY)
+    prices = import_prices_from_bigquery(PROJECT_ID, PRICES)
     print("Data import success! Creating Discord report...")
 
     if event["method"] == "daily-report":
