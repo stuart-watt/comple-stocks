@@ -4,3 +4,4 @@ pandas-gbq
 matplotlib
 yahooquery
 numpy
+fire
