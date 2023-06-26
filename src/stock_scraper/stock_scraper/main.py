@@ -116,7 +116,7 @@ def scrape_prices(
         print(
             f"Last timestamp found in {table} is {latest_prices.latest_timestamp.iloc[0]}"
         )
-        period = "1d" if interval == "1m" else "1w"
+        period = "1d" if interval == "1m" else "4w"
 
     else:
         print(f"No latest timestamp found in {table}")
