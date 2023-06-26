@@ -15,7 +15,7 @@ def get_price_change(
 
     df = pd.merge(start_price, end_price, on="symbol", suffixes=("_start", "_end"))
 
-    df["abs_change"] = df["close_end"] - df["close_start"]
-    df["pct_change"] = df["abs_change"] / df["close_start"]
+    df["abs_change"] = df["price_end"] - df["price_start"]
+    df["pct_change"] = df["abs_change"] / df["price_start"]
 
     return df

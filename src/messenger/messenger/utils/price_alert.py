@@ -5,25 +5,28 @@ import pandas as pd
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 
-def create_price_alert(webhook: str, prices: pd.DataFrame):
+def create_price_alert(
+    webhook: str, historical_prices: pd.DataFrame, current_prices: pd.DataFrame
+):
     """Create a Discord buy alert"""
 
-    prices = get_price_stats_for_symbol(prices)
+    prices = get_price_stats_for_symbol(historical_prices)
 
     prices = prices.merge(get_listed_companies(), how="left", on="symbol")
+    prices = prices.merge(current_prices, how="left", on="symbol")
 
     print("Filtering for stocks to buy or sell...")
 
     buys = prices[
-        (prices["last_close"] > 1)
-        & (prices["last_close"] < prices["mean_close"] * 0.95)
-        & (prices["last_close"] == prices["min_close"])
+        (prices["currentPrice"] > 0.5)
+        & (prices["currentPrice"] < prices["mean_price"] * 0.95)
+        & (prices["currentPrice"] < prices["min_price"])
     ]
 
     sales = prices[
-        (prices["last_close"] > 1)
-        & (prices["last_close"] > prices["mean_close"] * 1.05)
-        & (prices["last_close"] == prices["max_close"])
+        (prices["currentPrice"] > 0.5)
+        & (prices["currentPrice"] > prices["mean_price"] * 1.05)
+        & (prices["currentPrice"] > prices["max_price"])
     ]
 
     webhook = DiscordWebhook(url=webhook)
@@ -58,8 +61,11 @@ def create_price_alert(webhook: str, prices: pd.DataFrame):
     # Execute
     webhook.add_embed(embed)
     if len(buys) > 0 or len(sales) > 0:
-        webhook.execute()
-        print("Price alert sent to Discord")
+        result = webhook.execute()
+        if result.status_code == 200:
+            print("Price alert sent to Discord")
+        else:
+            raise Exception("Price alert failed to send to Discord")
 
     return
 
@@ -68,15 +74,17 @@ def get_price_stats_for_symbol(df: pd.DataFrame) -> pd.DataFrame:
     """Get the price stats for each symbol"""
 
     df = (
-        df.sort_values(by="timestamp")[["symbol", "close"]]
+        df.sort_values(by="timestamp")[["symbol", "price"]]
         .groupby("symbol")
         .agg(
-            min_close=("close", "min"),
-            max_close=("close", "max"),
-            mean_close=("close", "mean"),
-            last_close=("close", "last"),
+            min_price=("price", "min"),
+            max_price=("price", "max"),
+            mean_price=("price", "mean"),
         )
     )
+
+    numeric_columns = ["min_price", "max_price", "mean_price"]
+    df[numeric_columns] = df[numeric_columns].astype(float)
 
     return df.reset_index()
 
