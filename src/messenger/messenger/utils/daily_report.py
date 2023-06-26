@@ -2,19 +2,18 @@
 import pytz
 
 import pandas as pd
+import numpy as np
 
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 # pylint: disable=import-error
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
 
 from .metrics import get_price_change
 from .utils import (
     get_last_two_dates,
     get_yesterday_close,
-    get_price_timeseries,
 )
 
 
@@ -30,7 +29,7 @@ def create_discord_report(webhook: str, prices: pd.DataFrame):
     embed.set_timestamp()
 
     # filter by shares with value above $0.5
-    prices = prices[prices["close"] > 0.5]
+    prices = prices[prices["price"] > 0.5]
 
     daily_price_changes = get_price_change(prices, *get_last_two_dates(prices))
 
@@ -62,8 +61,11 @@ def create_discord_report(webhook: str, prices: pd.DataFrame):
 
     # Execute
     webhook.add_embed(embed)
-    webhook.execute()
-    print("Discord report created and sent successfully!")
+    result = webhook.execute()
+    if result.status_code == 200:
+        print("Discord report created and sent successfully!")
+    else:
+        raise Exception("Report failed to send to Discord")
 
     return
 
@@ -87,9 +89,11 @@ def make_gainer_string(df: pd.DataFrame):
 def make_chart(prices: pd.DataFrame, winner: str, loser: str) -> str:
     """Create a chart of the top gainer and loser"""
 
-    top_gainer = get_price_timeseries(prices, winner)
+    top_gainer = prices[prices["symbol"] == winner]
+    top_gainer = top_gainer.set_index("timestamp").sort_index()
     top_gainer_open = get_yesterday_close(prices, winner)
-    top_loser = get_price_timeseries(prices, loser)
+    top_loser = prices[prices["symbol"] == loser]
+    top_loser = top_loser.set_index("timestamp").sort_index()
     top_loser_open = get_yesterday_close(prices, loser)
 
     fig = plt.figure(figsize=(10, 8))
@@ -98,57 +102,54 @@ def make_chart(prices: pd.DataFrame, winner: str, loser: str) -> str:
     ax2 = fig.add_subplot(212)
 
     ax1.plot(
-        top_gainer["timestamp"],
-        top_gainer["close"],
+        range(len(top_gainer)),
+        top_gainer["price"],
         c="g",
         label="Top Gainer: " + winner,
     )
     ax1.axhline(top_gainer_open, color="gray", linestyle="--")
     ax1.fill_between(
-        top_gainer["timestamp"],
-        top_gainer["close"],
+        range(len(top_gainer)),
+        top_gainer["price"],
         top_gainer_open,
-        where=top_gainer["close"] > top_gainer_open,
+        where=top_gainer["price"] >= top_gainer_open,
         color="g",
         alpha=0.5,
     )
     ax1.fill_between(
-        top_gainer["timestamp"],
-        top_gainer["close"],
+        range(len(top_gainer)),
+        top_gainer["price"],
         top_gainer_open,
-        where=top_gainer["close"] < top_gainer_open,
+        where=top_gainer["price"] <= top_gainer_open,
         color="r",
         alpha=0.5,
     )
 
     ax2.plot(
-        top_loser["timestamp"], top_loser["close"], c="r", label="Top Loser: " + loser
+        range(len(top_loser)), top_loser["price"], c="r", label="Top Loser: " + loser
     )
     ax2.axhline(top_loser_open, color="gray", linestyle="--")
     ax2.fill_between(
-        top_loser["timestamp"],
-        top_loser["close"],
+        range(len(top_loser)),
+        top_loser["price"],
         top_loser_open,
-        where=top_loser["close"] > top_loser_open,
+        where=top_loser["price"] >= top_loser_open,
         color="g",
         alpha=0.5,
     )
     ax2.fill_between(
-        top_loser["timestamp"],
-        top_loser["close"],
+        range(len(top_loser)),
+        top_loser["price"],
         top_loser_open,
-        where=top_loser["close"] < top_loser_open,
+        where=top_loser["price"] <= top_loser_open,
         color="r",
         alpha=0.5,
     )
 
     # Figure formatting
-    ax1.set_xlim(top_gainer["timestamp"].min(), top_gainer["timestamp"].max())
-    ax2.set_xlim(top_gainer["timestamp"].min(), top_gainer["timestamp"].max())
 
-    date_format = mdates.DateFormatter("%I:%M %p", tz=pytz.timezone("Australia/Perth"))
-    ax1.xaxis.set_major_formatter(date_format)
-    ax2.xaxis.set_major_formatter(date_format)
+    ax1 = format_time_axis(ax1, top_gainer)
+    ax2 = format_time_axis(ax2, top_loser)
 
     tick = mtick.StrMethodFormatter("${x:,.2f}")
     ax1.yaxis.set_major_formatter(tick)
@@ -164,3 +165,31 @@ def make_chart(prices: pd.DataFrame, winner: str, loser: str) -> str:
     plt.savefig("/tmp/" + filename)
 
     return filename
+
+
+def format_time_axis(ax, data):
+    """Format the time axis to continuously vary from one market day to the next"""
+    timezone = pytz.timezone("Australia/Perth")
+
+    ticks_date = data.index.indexer_at_time("00:00")
+    ticks_time = np.arange(data.index.size)[data.index.minute == 0]
+    ax.set_xticks(ticks_date)
+    ax.set_xticks(ticks_time, minor=True)
+
+    data.index = data.index.tz_convert(timezone)
+
+    labels_date = [
+        maj_tick.strftime("\n%d-%b").replace("\n0", "\n")
+        for maj_tick in data.index[ticks_date]
+    ]
+    labels_time = [
+        min_tick.strftime("%I").lstrip("0").lower()
+        for min_tick in data.index[ticks_time]
+    ]
+    ax.set_xticklabels(labels_date)
+    ax.set_xticklabels(labels_time, minor=True)
+    ax.figure.autofmt_xdate(rotation=0, ha="center", which="both")
+
+    ax.set_xlim(0, len(data))
+
+    return ax
