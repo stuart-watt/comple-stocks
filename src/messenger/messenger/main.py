@@ -12,7 +12,7 @@ from utils.utils import import_prices_from_bigquery
 
 PROJECT_ID = os.environ.get("PROJECT_ID")
 WEBHOOK = os.environ["WEBHOOK"]
-PRICES= os.environ["PRICES"]
+PRICES = os.environ["PRICES"]
 
 #############
 ## Handler ##

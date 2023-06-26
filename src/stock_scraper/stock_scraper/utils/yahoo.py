@@ -9,7 +9,9 @@ def get_stock_data(tickers: list, period: str, interval: str):
 
     client = Ticker(tickers, asynchronous=True)
     df = client.history(period=period, interval=interval).reset_index()
-    print(f"Yahoo client returned {len(df)} rows, with {df.symbol.nunique()} symbols. Cleaning data...")
+    print(
+        f"Yahoo client returned {len(df)} rows, with {df.symbol.nunique()} symbols. Cleaning data..."
+    )
 
     numeric_cols = ["open", "close", "low", "high", "volume"]
     df[numeric_cols] = df[numeric_cols].round(3).astype("string")
