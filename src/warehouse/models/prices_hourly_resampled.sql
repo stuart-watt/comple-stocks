@@ -1,6 +1,5 @@
 {{
   config(
-    materialized="incremental",
     partition_by = {
       "field": "timestamp",
       "data_type": "timestamp",
@@ -19,9 +18,6 @@ WITH
       `close` as price
     FROM
       {{ source("stocks", "prices_hourly")}}
-    {% if is_incremental() %}
-      WHERE `timestamp` > DATE_SUB((SELECT MAX(`timestamp`) as x FROM {{ this }}), INTERVAL 14 DAY)
-    {% endif %}
   ),
 
   -- keep last value after rounding
@@ -64,10 +60,6 @@ WITH
       ) AS `timestamp`
     WHERE
       EXTRACT(TIME FROM `timestamp`) >= "00:00:00" AND EXTRACT(TIME FROM `timestamp`) <= "06:00:00" -- Trading hours of ASX in UTC+0
-    {% if is_incremental() %}
-      -- Grab the last days' worth of prices in {{ this }} to forward fill
-      AND `timestamp` > DATE_SUB((SELECT MAX(`timestamp`) as x FROM {{ this }}), INTERVAL 1 DAY)
-    {% endif %}
   ),
 
   timestamp_master AS (
@@ -115,7 +107,3 @@ SELECT
   COALESCE(price, 1) as price
 FROM 
   new_prices 
-{% if is_incremental() %}
-  WHERE
-    `timestamp` > (SELECT MAX(`timestamp`) as x FROM {{ this }})
-{% endif %}
