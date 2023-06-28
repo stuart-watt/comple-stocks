@@ -1,5 +1,6 @@
 """Utilities for creating the trading report in Discord"""
 
+from datetime import datetime, timedelta
 import pytz
 
 import pandas as pd
@@ -15,8 +16,10 @@ def make_report_figure(df: pd.DataFrame) -> str:
     plt.subplots_adjust(wspace=0.05, hspace=0.25)
     ax1 = fig.add_subplot(111)
 
-    for author_name in df.author_name.unique():
-        data = df[df["author_name"] == author_name]
+    df_trunc = df[df["timestamp"] >= datetime.now() - timedelta(7)]
+
+    for author_name in df_trunc.author_name.unique():
+        data = df_trunc[df_trunc["author_name"] == author_name]
 
         data = data.set_index("timestamp")
 
@@ -57,7 +60,7 @@ def make_report_figure(df: pd.DataFrame) -> str:
         for maj_tick in data.index[ticks_date]
     ]
     labels_time = [
-        min_tick.strftime("%I %p").lstrip("0").lower()
+        min_tick.strftime("%H").lstrip("0").lower()
         for min_tick in data.index[ticks_time]
     ]
     ax1.set_xticklabels(labels_date)
@@ -66,6 +69,7 @@ def make_report_figure(df: pd.DataFrame) -> str:
 
     ax1.legend(fontsize=20, loc=3)
 
+    # ax1.tick_params(axis="x", which="minor", labelsize=15, rotation=30)
     ax1.tick_params(labelsize=15)
 
     ax1.set_xlim(0, len(data))
