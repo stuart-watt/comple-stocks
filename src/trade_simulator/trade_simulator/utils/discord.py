@@ -13,7 +13,7 @@ def scrape_messages_from_discord_channel(channel_id: str, token: str) -> pd.Data
     """Scrapes all messages from a discord channel and returns a pandas dataframe"""
 
     headers = {"authorization": f"Bot {token}"}
-    url = f"https://discord.com/api/v9/channels/{channel_id}/messages?"
+    url = f"https://discord.com/api/v9/channels/{channel_id}/messages?limit=100"
 
     r = requests.get(url, headers=headers, timeout=10)
 

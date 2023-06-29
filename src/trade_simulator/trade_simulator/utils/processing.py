@@ -73,6 +73,9 @@ def process_discord_messages(messages: pd.DataFrame):
 
 def compute_trade_value(trades: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
     """Merge trade data with price data to compute trade value"""
+    trades["timestamp"] = trades["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
+    numeric_cols = ["balance", "volume", "cash_volume", "stock_volume", "brokerage"]
+    trades[numeric_cols] = trades[numeric_cols].astype(float)
 
     df = prices.merge(trades, how="left", on=["author_name", "symbol", "timestamp"])
 

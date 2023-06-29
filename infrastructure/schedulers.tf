@@ -79,6 +79,10 @@ resource "google_cloud_scheduler_job" "price_check" {
   }
 }
 
+###############
+## Simulator ##
+###############
+
 resource "google_cloud_scheduler_job" "simulation_report" {
   name        = "trading_simulation_report"
   schedule    = "0 8 * * 1-5" # 4 pm AWST
@@ -87,6 +91,18 @@ resource "google_cloud_scheduler_job" "simulation_report" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.simulation_report.id
-    data = base64encode(jsonencode({}))
+    data = base64encode(jsonencode({"method": "report"}))
+  }
+}
+
+resource "google_cloud_scheduler_job" "simulation_scrape" {
+  name        = "trading_simulation_scraper"
+  schedule    = "30 0-6 * * *"
+  region      = var.region
+  description = "Starts a job to scrape Discord messages and save to BigQuery."
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.simulation_report.id
+    data = base64encode(jsonencode({"method": "scrape-trades"}))
   }
 }

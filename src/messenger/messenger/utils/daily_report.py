@@ -1,5 +1,6 @@
 """Utilities to create a daily discord report"""
 import pytz
+import math
 
 import pandas as pd
 import numpy as np
@@ -75,9 +76,11 @@ def make_gainer_string(df: pd.DataFrame):
     return "\n".join(
         [
             symbol.ljust(7, "᲼")
-            + f"{pct_change:.1%}".ljust(  # uses a unicode character for empty space
+            + ("+" if pct_change > 0 else "-")
+            + f"{abs(pct_change):.1%}".ljust(  # uses a unicode character for empty space
                 10, "᲼"
             )
+            + ("+" if abs_change > 0 else "-")
             + f"${abs(abs_change):,.3f}"
             for symbol, pct_change, abs_change in zip(
                 df["symbol"], df["pct_change"], df["abs_change"]
