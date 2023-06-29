@@ -264,7 +264,7 @@ resource "google_bigquery_table" "simulated_trades" {
     },
     {
       "name": "volume",
-      "type": "NUMERIC",
+      "type": "INTEGER",
       "mode": "NULLABLE",
       "description": "The volume of the action"
     },
@@ -276,25 +276,25 @@ resource "google_bigquery_table" "simulated_trades" {
     },
     {
       "name": "stock_volume",
-      "type": "NUMERIC",
+      "type": "INTEGER",
       "mode": "NULLABLE",
       "description": "The volume of the action if its a stock"
     },
     {
       "name": "cash_volume",
-      "type": "NUMERIC",
+      "type": "INTEGER",
       "mode": "NULLABLE",
       "description": "The volume of the action if its cash"
     },
     {
       "name": "brokerage",
-      "type": "NUMERIC",
+      "type": "INTEGER",
       "mode": "NULLABLE",
       "description": "The value of the brokerage fee"
     },
     {
       "name": "balance",
-      "type": "NUMERIC",
+      "type": "INTEGER",
       "mode": "NULLABLE",
       "description": "The running balance of the symbol for the author_name"
     }
