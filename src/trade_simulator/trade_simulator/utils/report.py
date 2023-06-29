@@ -82,51 +82,39 @@ def make_report_figure(df: pd.DataFrame) -> str:
     return filename
 
 
-def get_current_trader_status(
-    trades: pd.DataFrame, balances: pd.DataFrame
-) -> pd.DataFrame:
+def get_current_trader_status(balances: pd.DataFrame) -> pd.DataFrame:
     """Creates a string displaying each traders balances"""
 
-    stock_balances = (
-        trades[["author_name", "symbol", "timestamp", "balance", "stock_balance_value"]]
+    current_balances = (
+        balances[["author_name", "symbol", "timestamp", "balance", "balance_value"]]
         .sort_values(by=["timestamp"])
         .groupby(["author_name", "symbol"])
         .last()
         .reset_index()
     )
 
-    stock_balances = stock_balances[
-        (stock_balances["balance"] > 0) & (stock_balances["symbol"] != "$aud")
-    ]
-    stock_balances = stock_balances[
-        ["author_name", "symbol", "balance", "stock_balance_value"]
+    stock_balances = current_balances[
+        (current_balances["balance"] > 0) & (current_balances["symbol"] != "$AUD")
     ]
 
-    cash_balances = (
-        balances[["author_name", "timestamp", "cash_balance"]]
-        .sort_values(by=["timestamp"])
-        .groupby(["author_name"])
-        .last()
-        .reset_index()
-    )
-    cash_balances = cash_balances[["author_name", "cash_balance"]]
+    cash_balances = current_balances[(current_balances["symbol"] == "$AUD")]
 
     standings = []
 
     for author in stock_balances["author_name"].unique():
         author_cash = cash_balances[cash_balances["author_name"] == author]
-        cash = author_cash.cash_balance.iloc[0]
+        cash = author_cash.balance_value.iloc[0]
         string = f"Cash: **${cash:.2f}**\n"
 
         author_balances = stock_balances[stock_balances["author_name"] == author]
         string += "\n".join(
             [
-                f"{row.symbol.upper()}: {int(row.balance)} (**${row.stock_balance_value:.2f}**)"
+                f"{row.symbol}: {int(row.balance)} (**${row.balance_value:.2f}**)"
                 for _, row in author_balances.iterrows()
             ]
         )
 
-        total = cash + author_balances.stock_balance_value.sum()
+        total = cash + author_balances.balance_value.sum()
 
         string += f"\nTotal: ${total:.2f}"
 

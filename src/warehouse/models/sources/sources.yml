@@ -8,3 +8,4 @@ sources:
       - name: listed_companies
       - name: prices_hourly
       - name: prices_minutely
+      - name: simulated_trades
