@@ -37,6 +37,7 @@ resource "google_cloudfunctions_function" "trade-simulator" {
 
   environment_variables = {
     PRICES_MINUTELY = "${google_bigquery_dataset.stocks.dataset_id}.prices_minutely_resampled"
+    TRADES_TABLE    = "${google_bigquery_dataset.stocks.dataset_id}.${google_bigquery_table.simulated_trades.table_id}"
     PROJECT_ID      = var.project_id
     CHANNEL_ID      = var.trading_channel_id
   }
