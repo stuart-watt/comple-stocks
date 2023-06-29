@@ -18,13 +18,13 @@ def create_price_alert(
     print("Filtering for stocks to buy or sell...")
 
     buys = prices[
-        (prices["currentPrice"] > 0.5)
+        (prices["currentPrice"] > 1)
         & (prices["currentPrice"] < prices["mean_price"] * 0.95)
         & (prices["currentPrice"] < prices["min_price"])
     ]
 
     sales = prices[
-        (prices["currentPrice"] > 0.5)
+        (prices["currentPrice"] > 1)
         & (prices["currentPrice"] > prices["mean_price"] * 1.05)
         & (prices["currentPrice"] > prices["max_price"])
     ]
@@ -36,26 +36,21 @@ def create_price_alert(
         color="03b2f8",
     )
 
+    print(f"Found {len(buys)} stocks to buy and {len(sales)} to sell")
+
     if len(buys) > 0:
 
-        symbols = [
-            f"{name.title()} (**{symbol}**)"
-            for symbol, name in zip(buys["symbol"], buys["name"])
-        ]
+        for s in list_stocks_in_embed_field(buys):
+            embed.add_embed_field(
+                name=":arrow_up: Buy:", value=s, inline=False,
+            )
 
-        embed.add_embed_field(
-            name=":arrow_up: Buy:", value="\n".join(symbols), inline=False,
-        )
     if len(sales) > 0:
 
-        symbols = [
-            f"{name.title()} (**{symbol}**)"
-            for symbol, name in zip(sales["symbol"], sales["name"])
-        ]
-
-        embed.add_embed_field(
-            name=":arrow_down: Sell:", value="\n".join(symbols), inline=False,
-        )
+        for s in list_stocks_in_embed_field(sales):
+            embed.add_embed_field(
+                name=":arrow_down: Sell:", value=s, inline=False,
+            )
     embed.set_timestamp()
 
     # Execute
@@ -65,7 +60,7 @@ def create_price_alert(
         if result.status_code == 200:
             print("Price alert sent to Discord")
         else:
-            raise Exception("Price alert failed to send to Discord")
+            raise Exception(f"Price alert failed to send to Discord: {result.json()}")
 
     return
 
@@ -98,3 +93,25 @@ def get_listed_companies():
         dialect="standard",
         use_bqstorage_api=True,
     )
+
+
+def list_stocks_in_embed_field(df: pd.DataFrame) -> list:
+    """Creates a string that can be passed to an embed field
+    This function handles the case where the embed field value has more than
+    1024 characters. In which case, a new string is created.
+    """
+    fields = []
+    s = []
+    for symbol, name in zip(df["symbol"], df["name"]):
+        temp_s = [f"{name.title()} (**{symbol}**)"]
+
+        if len("\n".join(s + temp_s)) > 1024:
+            fields.append("\n".join(s))
+            s = temp_s
+
+        else:
+            s += temp_s
+
+    fields.append("\n".join(s))
+
+    return fields
