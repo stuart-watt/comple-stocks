@@ -63,39 +63,6 @@ def process_discord_messages(messages: pd.DataFrame):
     df["timestamp_exact"] = df["timestamp"]
     df["timestamp"] = df["timestamp"].dt.round("min")
 
-    df = df.sort_values(by="timestamp")
-    df["balance"] = df.groupby(["author_name", "symbol"])["volume"].cumsum()
-
     df = round_timestamps_up_to_next_market_hour(df)
-
-    return df
-
-
-def compute_balances(trades: pd.DataFrame) -> pd.DataFrame:
-    """Computes the cash and stock balances for each trader"""
-
-    df = trades[
-        [
-            "timestamp",
-            "author_name",
-            "cash_volume",
-            "stock_balance_value",
-            "stock_volume_value",
-            "cash_flow",
-        ]
-    ].reset_index(drop=True)
-
-    df = df.groupby(["timestamp", "author_name"]).sum().reset_index()
-    df["cash_balance"] = (
-        df.sort_values(by="timestamp").groupby(["author_name"])["cash_flow"].cumsum()
-    )
-    df["cash_changes"] = (
-        df.sort_values(by="timestamp").groupby(["author_name"])["cash_volume"].cumsum()
-    )
-    df["total_balance"] = df["cash_balance"] + df["stock_balance_value"]
-    df["total_change"] = df["total_balance"] - df["cash_changes"]
-    df["pct_change"] = (
-        (df["total_balance"] - df["cash_changes"]) / df["cash_changes"] * 100
-    )
 
     return df

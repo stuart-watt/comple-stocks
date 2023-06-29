@@ -16,7 +16,8 @@ PROJECT_ID = os.environ["PROJECT_ID"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
 AUTH_TOKEN = os.environ["AUTH_TOKEN"]
 PRICES_MINUTELY = os.environ["PRICES_MINUTELY"]
-TRADES_TABLE = "stocks.simulation_trade_value"  # os.environ["TRADES_TABLE"]
+TRADES_TABLE = os.environ["TRADES_TABLE"]
+TRADE_BALANCES = os.environ["TRADE_BALANCES"]
 WEBHOOK = os.environ["WEBHOOK"]
 
 #############
@@ -66,19 +67,11 @@ def scrape_messages():
 def send_report():
     """Send report to discord"""
 
-    print("Importing trade value from BigQuery...")
-    trades = read_from_bg(PROJECT_ID, TRADES_TABLE)
-    numeric_cols = [
-        "cash_volume",
-        "stock_balance_value",
-        "stock_volume_value",
-        "cash_flow",
-    ]
-    trades[numeric_cols] = trades[numeric_cols].astype(float)
-    trades["timestamp"] = trades["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
+    print("Importing trade balances from BigQuery...")
+    balances = read_from_bg(PROJECT_ID, TRADE_BALANCES)
 
-    print("Trade value imported successfully! Creating Discord report...")
-    create_discord_report(WEBHOOK, trades)
+    print("Trade balances imported successfully! Creating Discord report...")
+    create_discord_report(WEBHOOK, balances)
 
 
 ##########

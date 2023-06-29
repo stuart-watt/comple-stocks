@@ -278,25 +278,19 @@ resource "google_bigquery_table" "simulated_trades" {
       "name": "stock_volume",
       "type": "INTEGER",
       "mode": "NULLABLE",
-      "description": "The volume of the action if its a stock"
+      "description": "The volume of the action if its a stock (Buy or Sell action)"
     },
     {
       "name": "cash_volume",
       "type": "INTEGER",
       "mode": "NULLABLE",
-      "description": "The volume of the action if its cash"
+      "description": "The volume of the action if its cash (Add or Subtract action)"
     },
     {
       "name": "brokerage",
       "type": "INTEGER",
       "mode": "NULLABLE",
       "description": "The value of the brokerage fee"
-    },
-    {
-      "name": "balance",
-      "type": "INTEGER",
-      "mode": "NULLABLE",
-      "description": "The running balance of the symbol for the author_name"
     }
   ]
   EOF
