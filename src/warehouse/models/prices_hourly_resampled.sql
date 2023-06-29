@@ -17,7 +17,7 @@ WITH
       DATETIME_TRUNC(`timestamp`, HOUR) as `timestamp`,
       `close` as price
     FROM
-      {{ source("stocks", "prices_hourly")}}
+      {{ source("stocks", "prices_hourly") }}
   ),
 
   -- keep last value after rounding
