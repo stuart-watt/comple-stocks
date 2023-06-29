@@ -9,17 +9,14 @@ import fire
 
 # pylint: disable=import-error
 from utils.discord import scrape_messages_from_discord_channel, create_discord_report
-from utils.processing import (
-    process_discord_messages,
-    compute_trade_value,
-)
-from utils.bigquery import load_to_bg, read_from_bg, import_prices_from_bigquery
+from utils.processing import process_discord_messages
+from utils.bigquery import load_to_bg, read_from_bg
 
 PROJECT_ID = os.environ["PROJECT_ID"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
 AUTH_TOKEN = os.environ["AUTH_TOKEN"]
 PRICES_MINUTELY = os.environ["PRICES_MINUTELY"]
-TRADES_TABLE = os.environ["TRADES_TABLE"]
+TRADES_TABLE = "stocks.simulation_trade_value"  # os.environ["TRADES_TABLE"]
 WEBHOOK = os.environ["WEBHOOK"]
 
 #############
@@ -69,17 +66,19 @@ def scrape_messages():
 def send_report():
     """Send report to discord"""
 
-    print("Importing trades from BigQuery...")
+    print("Importing trade value from BigQuery...")
     trades = read_from_bg(PROJECT_ID, TRADES_TABLE)
-    print("Trades imported successfully! Importing prices from BigQuery...")
+    numeric_cols = [
+        "cash_volume",
+        "stock_balance_value",
+        "stock_volume_value",
+        "cash_flow",
+    ]
+    trades[numeric_cols] = trades[numeric_cols].astype(float)
+    trades["timestamp"] = trades["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
 
-    prices = import_prices_from_bigquery(PROJECT_ID, PRICES_MINUTELY, trades)
-    print("Price data imported successfully! Computing trade value...")
-
-    trade_value = compute_trade_value(trades, prices)
-    print("Trade value computed successfully! Creating Discord report...")
-
-    create_discord_report(WEBHOOK, trade_value)
+    print("Trade value imported successfully! Creating Discord report...")
+    create_discord_report(WEBHOOK, trades)
 
 
 ##########

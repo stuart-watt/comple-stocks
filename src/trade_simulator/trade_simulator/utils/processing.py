@@ -71,31 +71,6 @@ def process_discord_messages(messages: pd.DataFrame):
     return df
 
 
-def compute_trade_value(trades: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
-    """Merge trade data with price data to compute trade value"""
-    trades["timestamp"] = trades["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
-    numeric_cols = ["balance", "volume", "cash_volume", "stock_volume", "brokerage"]
-    trades[numeric_cols] = trades[numeric_cols].astype(float)
-
-    df = prices.merge(trades, how="left", on=["author_name", "symbol", "timestamp"])
-
-    df[["volume", "cash_volume", "stock_volume", "brokerage"]] = df[
-        ["volume", "cash_volume", "stock_volume", "brokerage"]
-    ].fillna(0)
-    df["balance"] = df.groupby(["author_name", "symbol"])["balance"].ffill()
-    df["balance"] = df["balance"].fillna(0)
-
-    df["stock_balance_value"] = df["balance"] * df["price"]
-    df["stock_volume_value"] = df["stock_volume"] * df["price"]
-
-    df["cash_flow"] = df["cash_volume"] - df["stock_volume_value"] - df["brokerage"]
-
-    df.loc[df["symbol"] == "$aud", "stock_balance_value"] = 0
-    df.loc[df["symbol"] == "$aud", "stock_volume_value"] = 0
-
-    return df
-
-
 def compute_balances(trades: pd.DataFrame) -> pd.DataFrame:
     """Computes the cash and stock balances for each trader"""
 

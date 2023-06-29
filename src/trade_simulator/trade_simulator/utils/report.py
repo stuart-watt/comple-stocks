@@ -96,7 +96,7 @@ def get_current_trader_status(
     )
 
     stock_balances = stock_balances[
-        (stock_balances["balance"] > 0) & (stock_balances["symbol"] != "$aud")
+        (stock_balances["balance"] > 0) & (stock_balances["symbol"] != "$AUD")
     ]
     stock_balances = stock_balances[
         ["author_name", "symbol", "balance", "stock_balance_value"]
@@ -121,7 +121,7 @@ def get_current_trader_status(
         author_balances = stock_balances[stock_balances["author_name"] == author]
         string += "\n".join(
             [
-                f"{row.symbol.upper()}: {int(row.balance)} (**${row.stock_balance_value:.2f}**)"
+                f"{row.symbol}: {int(row.balance)} (**${row.stock_balance_value:.2f}**)"
                 for _, row in author_balances.iterrows()
             ]
         )
