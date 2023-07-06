@@ -8,12 +8,17 @@ from base64 import b64decode
 import fire
 
 # pylint: disable=import-error
-from utils.discord import scrape_messages_from_discord_channel, create_discord_report
+from utils.discord import (
+    scrape_messages_from_discord_channel,
+    scrape_members_from_discord_guild,
+    create_discord_report,
+)
 from utils.processing import process_discord_messages
 from utils.bigquery import load_to_bg, read_from_bg
 
 PROJECT_ID = os.environ["PROJECT_ID"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
+GUILD_ID = os.environ["GUILD_ID"]
 AUTH_TOKEN = os.environ["AUTH_TOKEN"]
 PRICES_MINUTELY = os.environ["PRICES_MINUTELY"]
 TRADES_TABLE = os.environ["TRADES_TABLE"]
@@ -70,8 +75,11 @@ def send_report():
     print("Importing trade balances from BigQuery...")
     balances = read_from_bg(PROJECT_ID, TRADE_BALANCES)
 
+    print("Importing guild nicknames")
+    names = scrape_members_from_discord_guild(GUILD_ID, AUTH_TOKEN)
+
     print("Trade balances imported successfully! Creating Discord report...")
-    create_discord_report(WEBHOOK, balances)
+    create_discord_report(WEBHOOK, balances, names)
 
 
 ##########

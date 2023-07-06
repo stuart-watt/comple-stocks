@@ -41,6 +41,7 @@ resource "google_cloudfunctions_function" "trade-simulator" {
     TRADE_BALANCES  = "${google_bigquery_dataset.stocks.dataset_id}.simulation_balances"
     PROJECT_ID      = var.project_id
     CHANNEL_ID      = var.trading_channel_id
+    GUILD_ID        = var.guild_id
   }
 
   secret_environment_variables {
