@@ -18,8 +18,10 @@ def make_report_figure(df: pd.DataFrame) -> str:
 
     df_trunc = df[df["timestamp"] >= datetime.now() - timedelta(7)]
 
-    for author_name in df_trunc.author_name.unique():
-        data = df_trunc[df_trunc["author_name"] == author_name]
+    authors = df_trunc.display_name.unique()
+
+    for author_name in authors:
+        data = df_trunc[df_trunc["display_name"] == author_name]
 
         data = data.set_index("timestamp")
 
@@ -67,7 +69,9 @@ def make_report_figure(df: pd.DataFrame) -> str:
     ax1.set_xticklabels(labels_time, minor=True)
     ax1.figure.autofmt_xdate(rotation=0, ha="center", which="both")
 
-    ax1.legend(fontsize=20, loc=3)
+    ax1.legend(
+        fontsize=20, bbox_to_anchor=(0.5, -0.27), loc="lower center", ncols=len(authors)
+    )
 
     # ax1.tick_params(axis="x", which="minor", labelsize=15, rotation=30)
     ax1.tick_params(labelsize=15)
@@ -86,9 +90,9 @@ def get_current_trader_status(balances: pd.DataFrame) -> pd.DataFrame:
     """Creates a string displaying each traders balances"""
 
     current_balances = (
-        balances[["author_name", "symbol", "timestamp", "balance", "balance_value"]]
+        balances[["display_name", "symbol", "timestamp", "balance", "balance_value"]]
         .sort_values(by=["timestamp"])
-        .groupby(["author_name", "symbol"])
+        .groupby(["display_name", "symbol"])
         .last()
         .reset_index()
     )
@@ -101,12 +105,12 @@ def get_current_trader_status(balances: pd.DataFrame) -> pd.DataFrame:
 
     standings = []
 
-    for author in stock_balances["author_name"].unique():
-        author_cash = cash_balances[cash_balances["author_name"] == author]
+    for author in stock_balances["display_name"].unique():
+        author_cash = cash_balances[cash_balances["display_name"] == author]
         cash = author_cash.balance_value.iloc[0]
         string = f"Cash: **${cash:.2f}**\n"
 
-        author_balances = stock_balances[stock_balances["author_name"] == author]
+        author_balances = stock_balances[stock_balances["display_name"] == author]
         string += "\n".join(
             [
                 f"{row.symbol}: {int(row.balance)} (**${row.balance_value:.2f}**)"

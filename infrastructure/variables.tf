@@ -29,6 +29,11 @@ variable "trading_channel_id" {
   description = "The ID for the simualted trading Discord channel."
 }
 
+variable "guild_id" {
+  type        = string
+  description = "The ID for the Discord server."
+}
+
 variable "bot_auth_token" {
   type        = string
   description = "The Authorisation token for the Discord bot."
