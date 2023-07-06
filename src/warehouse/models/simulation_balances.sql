@@ -15,6 +15,7 @@ WITH
       `timestamp`,
       author_name,
       UPPER(symbol) as symbol,
+      `action`,
       cash_volume,
       stock_volume,
       brokerage,
@@ -50,6 +51,7 @@ WITH
       symbol, 
       `timestamp`,
       price,
+      `action`,
       COALESCE(cash_volume, 0) as cash_volume,
       COALESCE(stock_volume, 0) as stock_volume,
       COALESCE(brokerage, 0) as brokerage,
@@ -62,6 +64,32 @@ WITH
     FROM
       spine LEFT JOIN trades USING (author_name, symbol, `timestamp`)
   ),
+
+  -- calculate an average buy price
+
+  average_buy_prices AS (
+    SELECT
+      author_name,
+      symbol, 
+      `timestamp`,
+      SAFE_DIVIDE(
+        SUM(stock_volume * price) OVER (
+          PARTITION BY author_name, symbol
+          ORDER BY `timestamp`
+          ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ),
+        SUM(stock_volume) OVER (
+          PARTITION BY author_name, symbol
+          ORDER BY `timestamp`
+          ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        )
+      ) as average_buy_price
+    FROM
+      trades_on_spine
+    WHERE (`action` = "buy" OR `action` IS NULL)
+  ),
+
+  -- Calculate balances
 
   trade_values AS (
     SELECT
@@ -83,6 +111,7 @@ WITH
       symbol, 
       `timestamp`,
       price,
+
       SUM(cash_flow) OVER (
         PARTITION BY author_name
         ORDER BY `timestamp`, symbol DESC
@@ -108,6 +137,11 @@ SELECT
   price,
   IF(symbol="$AUD", cash_balance, stock_balance) as balance,
   IF(symbol="$AUD", cash_balance, stock_balance_value) as balance_value,
-  IF(symbol="$AUD", cash_input_balance, 0) as cash_input_balance
+  IF(symbol="$AUD", cash_input_balance, 0) as cash_input_balance,
+  average_buy_price
 FROM 
   balances
+LEFT JOIN
+  average_buy_prices
+USING
+  (author_name, symbol, `timestamp`)
