@@ -90,7 +90,16 @@ def get_current_trader_status(balances: pd.DataFrame) -> pd.DataFrame:
     """Creates a string displaying each traders balances"""
 
     current_balances = (
-        balances[["display_name", "symbol", "timestamp", "balance", "balance_value"]]
+        balances[
+            [
+                "display_name",
+                "symbol",
+                "timestamp",
+                "balance",
+                "balance_value",
+                "average_buy_price",
+            ]
+        ]
         .sort_values(by=["timestamp"])
         .groupby(["display_name", "symbol"])
         .last()
@@ -108,21 +117,31 @@ def get_current_trader_status(balances: pd.DataFrame) -> pd.DataFrame:
     for author in stock_balances["display_name"].unique():
         author_cash = cash_balances[cash_balances["display_name"] == author]
         cash = author_cash.balance_value.iloc[0]
-        string = f"Cash: **${cash:.2f}**\n"
+        embed_rows = [f"Cash: **${cash:.2f}**"]
 
         author_balances = stock_balances[stock_balances["display_name"] == author]
-        string += "\n".join(
-            [
-                f"{row.symbol}: {int(row.balance)} (**${row.balance_value:.2f}**)"
-                for _, row in author_balances.iterrows()
-            ]
+
+        for _, row in author_balances.iterrows():
+            ROI = (row.balance_value - row.balance * row.average_buy_price) / (
+                row.balance * row.average_buy_price
+            )
+            embed_rows.append(
+                f"{row.symbol}: {int(row.balance)} "
+                + f"(**${row.balance_value:.2f}**) ("
+                + ("+" if ROI >= 0 else "-")
+                + f"{abs(ROI)*100:.2f}%)"
+            )
+
+        total_investment = cash + author_balances.balance_value.sum()
+        embed_rows.append(f"**__Total: ${total_investment:.2f}__**")
+
+        standings.append(
+            {
+                "author": author,
+                "total": total_investment,
+                "string": "\n".join(embed_rows),
+            }
         )
-
-        total = cash + author_balances.balance_value.sum()
-
-        string += f"\nTotal: ${total:.2f}"
-
-        standings.append({"author": author, "total": total, "string": string})
 
     return (
         pd.DataFrame(standings)

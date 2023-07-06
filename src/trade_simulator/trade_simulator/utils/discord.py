@@ -44,7 +44,12 @@ def create_discord_report(webhook: str, balances: pd.DataFrame, names: pd.DataFr
     embed = DiscordEmbed(title="Simulated Trading Results", color="03b2f8")
     embed.set_timestamp()
 
-    numeric_cols = ["balance", "balance_value", "cash_input_balance"]
+    numeric_cols = [
+        "balance",
+        "balance_value",
+        "cash_input_balance",
+        "average_buy_price",
+    ]
     balances[numeric_cols] = balances[numeric_cols].astype(float)
     balances["timestamp"] = (
         balances["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
