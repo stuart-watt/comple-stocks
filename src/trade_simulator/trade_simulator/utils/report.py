@@ -73,7 +73,6 @@ def make_report_figure(df: pd.DataFrame) -> str:
         fontsize=20, bbox_to_anchor=(0.5, -0.27), loc="lower center", ncols=len(authors)
     )
 
-    # ax1.tick_params(axis="x", which="minor", labelsize=15, rotation=30)
     ax1.tick_params(labelsize=15)
 
     ax1.set_xlim(0, len(data))
