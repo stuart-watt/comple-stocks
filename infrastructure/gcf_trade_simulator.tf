@@ -14,7 +14,7 @@ resource "google_storage_bucket_object" "trade_simulator_archive" {
 
 resource "google_cloudfunctions_function" "trade-simulator" {
   name        = "trade-simulator"
-  description = "Sends a simulation report to Discord"
+  description = "Computes simulation based on messages in Discord"
   runtime     = "python39"
 
   
@@ -29,7 +29,7 @@ resource "google_cloudfunctions_function" "trade-simulator" {
 
   event_trigger {
     event_type = "google.pubsub.topic.publish"
-    resource   = google_pubsub_topic.simulation_report.id
+    resource   = google_pubsub_topic.trade_simulator.id
     failure_policy {
       retry = false
     }
