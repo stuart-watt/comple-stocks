@@ -36,9 +36,10 @@ resource "google_cloudfunctions_function" "discord-poll" {
   }
 
   environment_variables = {
-    PROJECT_ID = var.project_id
-    CHANNEL_ID = var.trading_channel_id
-    TOPIC      = google_pubsub_topic.trade_simulator.id
+    PROJECT_ID     = var.project_id
+    CHANNEL_ID     = var.trading_channel_id
+    TOPIC          = google_pubsub_topic.trade_simulator.id
+    POLLING_PERIOD = var.polling_period
   }
 
   secret_environment_variables {

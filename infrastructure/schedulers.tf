@@ -114,7 +114,7 @@ resource "google_cloud_scheduler_job" "simulation_scrape" {
 
 resource "google_cloud_scheduler_job" "discord_poll" {
   name        = "discord_poll"
-  schedule    = "*/5 * * * *" # every minute
+  schedule    = "*/${var.polling_period} * * * *" # every minute
   region      = var.region
   description = "Starts a job to poll Discord for messages."
 

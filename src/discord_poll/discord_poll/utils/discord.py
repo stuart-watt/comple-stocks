@@ -1,7 +1,10 @@
 """Utility functions for interacting with Discord"""
+
+import os
+from datetime import datetime, timedelta, timezone
 import requests
 
-from datetime import datetime, timedelta, timezone
+POLLING_PERIOD = os.environ["POLLING_PERIOD"]
 
 
 def scrape_messages_from_discord_channel(channel_id: str, token: str) -> dict:
@@ -12,7 +15,7 @@ def scrape_messages_from_discord_channel(channel_id: str, token: str) -> dict:
 
     r = requests.get(url, headers=headers, timeout=10)
 
-    threshold = datetime.now(timezone.utc) - timedelta(minutes=5)
+    threshold = datetime.now(timezone.utc) - timedelta(minutes=int(POLLING_PERIOD))
 
     return {
         i.get("content", "")
