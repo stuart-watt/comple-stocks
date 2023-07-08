@@ -1,10 +1,6 @@
 {{
   config(
-    partition_by = {
-      "field": "timestamp",
-      "data_type": "timestamp",
-      "granularity": "day"
-    }
+    materialized='view'
   )
 }}
 

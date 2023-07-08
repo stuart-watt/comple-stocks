@@ -38,3 +38,9 @@ variable "bot_auth_token" {
   type        = string
   description = "The Authorisation token for the Discord bot."
 }
+
+variable "polling_period" {
+  type        = string
+  description = "The period (in minutes) between polls of the Discord trades channel"
+  default     = "1"
+}

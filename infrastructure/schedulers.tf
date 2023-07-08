@@ -90,7 +90,7 @@ resource "google_cloud_scheduler_job" "simulation_report" {
   description = "Starts a job to send a trading simulation report to Discord."
 
   pubsub_target {
-    topic_name = google_pubsub_topic.simulation_report.id
+    topic_name = google_pubsub_topic.trade_simulator.id
     data = base64encode(jsonencode({"method": "report"}))
   }
 }
@@ -102,7 +102,24 @@ resource "google_cloud_scheduler_job" "simulation_scrape" {
   description = "Starts a job to scrape Discord messages and save to BigQuery."
 
   pubsub_target {
-    topic_name = google_pubsub_topic.simulation_report.id
+    topic_name = google_pubsub_topic.trade_simulator.id
     data = base64encode(jsonencode({"method": "scrape-trades"}))
+  }
+}
+
+
+##################
+## Discord Poll ##
+##################
+
+resource "google_cloud_scheduler_job" "discord_poll" {
+  name        = "discord_poll"
+  schedule    = "*/${var.polling_period} * * * *" # every minute
+  region      = var.region
+  description = "Starts a job to poll Discord for messages."
+
+  pubsub_target {
+    topic_name = google_pubsub_topic.discord_poll.id
+    data = base64encode(jsonencode({}))
   }
 }
