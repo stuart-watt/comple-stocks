@@ -2,6 +2,9 @@
 
 import os
 from time import perf_counter
+import json
+
+from google.cloud import pubsub_v1
 
 # pylint: disable=import-error
 from utils.discord import scrape_messages_from_discord_channel
@@ -19,11 +22,30 @@ TOPIC = os.environ["TOPIC"]
 def main(event=None, context=None):
     """Handler function which polls Discord for messages"""
 
-    print("Importing messages from Discord...")
-    commands = scrape_messages_from_discord_channel(CHANNEL_ID, AUTH_TOKEN)
-    print("Message ingestion success! Converting to trade information...")
+    print("Importing commands from Discord...")
+    messages = scrape_messages_from_discord_channel(CHANNEL_ID, AUTH_TOKEN)
+    print("Message ingestion success!")
 
-    print("Commands found:", commands)
+    client = pubsub_v1.PublisherClient()
+
+    trades = [
+        i for i in messages if i.lower().startswith(("buy", "sell", "add", "subtract"))
+    ]
+
+    commands = [i for i in messages if i.startswith("!")]
+
+    if len(trades) > 0:
+        msg = json.dumps({"method": "scrape-trades"}).encode()
+        print(f"Publishing message to {TOPIC}: {msg}")
+        client.publish(TOPIC, msg).result()
+
+    if "!chart" in commands:
+        msg = json.dumps({"method": "report"}).encode()
+        print(f"Publishing message to {TOPIC}: {msg}")
+        client.publish(TOPIC, msg).result()
+
+    if (len(trades) == 0) & (len(commands) == 0):
+        print(("Nothing to do!"))
 
 
 ##########
