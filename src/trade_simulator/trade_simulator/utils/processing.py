@@ -7,21 +7,23 @@ def round_timestamps_up_to_next_market_hour(df: pd.DataFrame) -> pd.DataFrame:
     """Sets any trades outside of market hours to the opening of the next day"""
 
     # Check if timestamp falls outside the range 00:00-06:00
-    mask = ~df["timestamp"].dt.strftime("%H:%M").between("00:00", "06:00") | (
-        df["timestamp"].dt.weekday >= 5
+    mask = ~df["timestamp_exact"].dt.strftime("%H:%M").between("00:00", "06:00") | (
+        df["timestamp_exact"].dt.weekday >= 5
     )
 
     # Adjust timestamps for each day outside the range 00:00-06:00
-    df.loc[mask & (df["timestamp"].dt.weekday < 4), "timestamp"] += pd.DateOffset(
+    df.loc[mask & (df["timestamp_exact"].dt.weekday < 4), "timestamp"] += pd.DateOffset(
         days=1
     )  # Mon-Thur
-    df.loc[mask & (df["timestamp"].dt.weekday == 4), "timestamp"] += pd.DateOffset(
+    df.loc[
+        mask & (df["timestamp_exact"].dt.weekday == 4), "timestamp"
+    ] += pd.DateOffset(
         days=3
     )  # Fri
-    df.loc[(df["timestamp"].dt.weekday == 5), "timestamp"] += pd.DateOffset(
+    df.loc[(df["timestamp_exact"].dt.weekday == 5), "timestamp"] += pd.DateOffset(
         days=2
     )  # Sat
-    df.loc[(df["timestamp"].dt.weekday == 6), "timestamp"] += pd.DateOffset(
+    df.loc[(df["timestamp_exact"].dt.weekday == 6), "timestamp"] += pd.DateOffset(
         days=1
     )  # Sun
     df.loc[mask, "timestamp"] = df.loc[mask, "timestamp"].dt.floor("D")

@@ -25,6 +25,7 @@ def test_round_timestamps_up_to_next_market_hour():
             )
         }
     )
+    df["timestamp_exact"] = df["timestamp"]
     print("df", df)
 
     rounded_df = round_timestamps_up_to_next_market_hour(df)
@@ -46,6 +47,8 @@ def test_round_timestamps_up_to_next_market_hour():
             )
         }
     )
+
+    expected_df["timestamp_exact"] = df["timestamp_exact"]
 
     print("rounded_df", rounded_df)
     print("expected_df", expected_df)
