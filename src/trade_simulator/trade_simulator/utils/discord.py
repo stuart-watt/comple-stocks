@@ -29,10 +29,10 @@ def scrape_members_from_discord_guild(guild_id: str, token: str) -> pd.DataFrame
 
     df = pd.DataFrame(r.json())
     df = df[["user", "nick"]]
-    df[["id", "author_name", "display_name"]] = df["user"].apply(pd.Series)[
-        ["id", "username", "display_name"]
+    df[["id", "author_name", "global_name"]] = df["user"].apply(pd.Series)[
+        ["id", "username", "global_name"]
     ]
-    df["display_name"] = df["nick"].fillna(df["display_name"]).fillna(df["author_name"])
+    df["display_name"] = df["nick"].fillna(df["global_name"]).fillna(df["author_name"])
 
     return df[["id", "author_name", "display_name"]]
 
